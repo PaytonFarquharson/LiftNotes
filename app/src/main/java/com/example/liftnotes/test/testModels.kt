@@ -1,10 +1,13 @@
 package com.example.liftnotes.test
 
 import com.example.liftnotes.R
+import com.example.liftnotes.model.CompletionDay
+import com.example.liftnotes.model.CurrentSession
 import com.example.liftnotes.model.Exercise
 import com.example.liftnotes.model.Reps
 import com.example.liftnotes.model.Session
 import com.example.liftnotes.model.Set
+import java.time.DayOfWeek
 
 val testExercisesModel: List<Exercise> = listOf(
     Exercise("0", "Pull-Ups", "Underhand", R.drawable.ic_pull_up, listOf(Set(0f, "", Reps(5,8)))),
@@ -30,8 +33,15 @@ val testExercisesModel: List<Exercise> = listOf(
 )
 
 val testSessionsModel: List<Session> = listOf(
-    Session("1", "Upper Day 1", "Cherry St YMCA", R.drawable.ic_pull_up, testExercisesModel.subList(0,6)),
-    Session("2", "Upper Day 2", "Central YMCA", R.drawable.ic_bench_pressing, testExercisesModel.subList(6,13)),
-    Session("3", "Lower Day 1", "Cherry St YMCA", R.drawable.ic_stretch5, testExercisesModel.subList(13,16)),
-    Session("4", "Lower Day 2", "Cherry St YMCA", R.drawable.ic_stretch5, listOf(testExercisesModel[13],testExercisesModel[17],testExercisesModel[16],testExercisesModel[15])),
+    Session("1", "Upper Day 1", "Cherry St YMCA", R.drawable.ic_pull_up, listOf(DayOfWeek.TUESDAY), testExercisesModel.subList(0,6)),
+    Session("2", "Upper Day 2", "Central YMCA", R.drawable.ic_bench_pressing, listOf(DayOfWeek.SATURDAY, DayOfWeek.TUESDAY, DayOfWeek.MONDAY, DayOfWeek.FRIDAY, DayOfWeek.THURSDAY, DayOfWeek.SUNDAY, DayOfWeek.WEDNESDAY), testExercisesModel.subList(6,13)),
+    Session("3", "Lower Day 1", "Cherry St YMCA", R.drawable.ic_stretch5, listOf(DayOfWeek.FRIDAY), testExercisesModel.subList(13,16)),
+    Session("4", "Lower Day 2", "Cherry St YMCA", R.drawable.ic_stretch5, listOf(DayOfWeek.TUESDAY, DayOfWeek.MONDAY, DayOfWeek.FRIDAY), listOf(testExercisesModel[13],testExercisesModel[17],testExercisesModel[16],testExercisesModel[15])),
+)
+
+val testCurrentSessionsModel: List<CurrentSession> = listOf(
+    CurrentSession(testSessionsModel[0], listOf(CompletionDay(DayOfWeek.TUESDAY, true))),
+    CurrentSession(testSessionsModel[1], listOf(CompletionDay(DayOfWeek.SUNDAY, true), CompletionDay(DayOfWeek.MONDAY), CompletionDay(DayOfWeek.TUESDAY, true), CompletionDay(DayOfWeek.WEDNESDAY), CompletionDay(DayOfWeek.THURSDAY), CompletionDay(DayOfWeek.FRIDAY), CompletionDay(DayOfWeek.SATURDAY))),
+    CurrentSession(testSessionsModel[2], listOf(CompletionDay(DayOfWeek.FRIDAY))),
+    CurrentSession(testSessionsModel[3], listOf(CompletionDay(DayOfWeek.MONDAY), CompletionDay(DayOfWeek.TUESDAY), CompletionDay(DayOfWeek.FRIDAY)))
 )

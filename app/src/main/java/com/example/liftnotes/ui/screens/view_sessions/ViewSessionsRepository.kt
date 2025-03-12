@@ -1,8 +1,7 @@
 package com.example.liftnotes.ui.screens.view_sessions
 
-import com.example.liftnotes.model.Session
-import com.example.liftnotes.test.testSessionsModel
+import com.example.liftnotes.test.testCurrentSessionsModel
 
 class ViewSessionsRepository() {
-    fun getCurrentSessions() = testSessionsModel
+    fun getCurrentSessions() = testCurrentSessionsModel
 }
