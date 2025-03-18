@@ -2,8 +2,10 @@ package com.example.liftnotes.model
 
 import androidx.annotation.DrawableRes
 import com.example.liftnotes.R
+import kotlinx.serialization.Serializable
 import java.time.DayOfWeek
 
+@Serializable
 data class Session(
     val id: String,
     val name: String,

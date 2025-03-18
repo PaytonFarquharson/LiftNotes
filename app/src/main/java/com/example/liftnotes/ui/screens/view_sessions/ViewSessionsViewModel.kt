@@ -14,6 +14,10 @@ class ViewSessionsViewModel(
         MutableStateFlow(repository.getCurrentSessions())
     val currentSessions: StateFlow<List<CurrentSession>> get() = _currentSessions
 
+    fun onCurrentSessionsReorder(currentSessions: List<CurrentSession>) {
+        _currentSessions.value = currentSessions
+    }
+
     companion object {
         fun provideFactory(
             repository: ViewSessionsRepository = ViewSessionsRepository()

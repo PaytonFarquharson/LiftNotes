@@ -1,8 +1,15 @@
 package com.example.liftnotes.ui.screens.view_exercises
 
 import com.example.liftnotes.model.Exercise
-import com.example.liftnotes.model.Session
+import com.example.liftnotes.test.testSessionsModel
 
-class ViewExercisesRepository() {
-    fun getCurrentExercises() = emptyList<Exercise>()
+class ViewExercisesRepository(val sessionId: String) {
+    fun getCurrentExercises() : List<Exercise> {
+        for (session in testSessionsModel) {
+            if (sessionId == session.id) {
+                return session.exercises
+            }
+        }
+        return emptyList()
+    }
 }

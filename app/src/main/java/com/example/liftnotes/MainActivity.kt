@@ -3,7 +3,7 @@ package com.example.liftnotes
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.example.liftnotes.ui.navigation.RootNavHost
+import com.example.liftnotes.ui.screens.common.MainScreen
 import com.example.liftnotes.ui.theme.LiftNotesTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             LiftNotesTheme {
-                RootNavHost()
+                MainScreen()
             }
         }
     }

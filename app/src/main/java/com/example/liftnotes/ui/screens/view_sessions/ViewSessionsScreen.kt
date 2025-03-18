@@ -1,22 +1,28 @@
 package com.example.liftnotes.ui.screens.view_sessions
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
@@ -25,29 +31,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.example.liftnotes.R
 import com.example.liftnotes.model.CurrentSession
+import com.example.liftnotes.ui.common.CardIcon
+import com.example.liftnotes.ui.common.CardNameDescription
 import com.example.liftnotes.ui.common.CompletionTracker
 import com.example.liftnotes.ui.common.FloatingAddButton
+import com.example.liftnotes.ui.common.ReorderHapticFeedbackType
+import com.example.liftnotes.ui.common.ReorderIconButton
+import com.example.liftnotes.ui.common.ReorderableCard
+import com.example.liftnotes.ui.common.rememberReorderHapticFeedback
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewSessionsScreen(
-    navController: NavController,
+    onSessionClick: (String) -> Unit,
     viewModel: ViewSessionsViewModel = viewModel(factory = ViewSessionsViewModel.provideFactory())
 ) {
-    val view = LocalView.current
-    val currentSessions by viewModel.currentSessions.collectAsStateWithLifecycle()
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -56,99 +61,72 @@ fun ViewSessionsScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
                 title = {
-                    Text("Top app bar")
+                    Text("Sessions")
                 }
             )
-        },
-        bottomBar = {
-            BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    text = "Bottom app bar",
-                )
-            }
         },
         floatingActionButton = {
             FloatingAddButton(onClick = {})
         },
-
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(currentSessions) {
-                SessionCard(it)
-            }
-        }
+        val list by viewModel.currentSessions.collectAsStateWithLifecycle()
+        Content(onSessionClick, { viewModel.onCurrentSessionsReorder(it) }, list, innerPadding)
     }
 }
 
 @Composable
-private fun SessionCard(
-    currentSession: CurrentSession
+private fun Content(
+    onSessionClick: (String) -> Unit,
+    onSessionsReorder: (List<CurrentSession>) -> Unit,
+    list: List<CurrentSession>,
+    innerPadding: PaddingValues
 ) {
-    val session = currentSession.session
-    Card (
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+    val haptic = rememberReorderHapticFeedback()
+    val lazyListState = rememberLazyListState()
+    val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        val reorderedList = list.toMutableList().apply {
+            add(to.index, removeAt(from.index))
+        }
+        onSessionsReorder(reorderedList)
+        haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
+    }
+
+    LazyColumn(
         modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth()
+            .padding(innerPadding)
+            .fillMaxSize(),
+        state = lazyListState,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(vertical = 8.dp)
-        ) {
-            Image(
-                painter = painterResource(session.imageId),
-                contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(32.dp)
-            )
-            Column(
-                Modifier.weight(0.6f),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = session.name,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                session.description?.let {
-                    Text(
-                        text = it,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.labelSmall
-                    )
+        itemsIndexed(list, key = { _, currentSession -> currentSession.session.id }) { _, currentSession ->
+            ReorderableItem(reorderableLazyListState, key = currentSession.session.id) { isDragging ->
+                ReorderableCard({ onSessionClick(currentSession.session.id) }) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                    ) {
+                        CardIcon(currentSession.session.imageId)
+                        CardNameDescription(
+                            currentSession.session.name,
+                            currentSession.session.description,
+                            Modifier.weight(0.6f)
+                        )
+                        CompletionTracker(
+                            currentSession.completionDays,
+                            Modifier.weight(0.4f)
+                        )
+                        ReorderIconButton(
+                            modifier = Modifier
+                                .draggableHandle(
+                                    onDragStarted = { haptic.performHapticFeedback(ReorderHapticFeedbackType.START) },
+                                    onDragStopped = { haptic.performHapticFeedback(ReorderHapticFeedbackType.END) },
+                                )
+                        )
+                    }
                 }
             }
-            CompletionTracker(
-                currentSession.completionDays,
-                Modifier.weight(0.4f)
-            )
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_reorder),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(32.dp)
-            )
         }
     }
 }
