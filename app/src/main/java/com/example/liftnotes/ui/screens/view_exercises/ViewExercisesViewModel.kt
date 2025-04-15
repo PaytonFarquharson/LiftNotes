@@ -20,7 +20,7 @@ class ViewExercisesViewModel(
 
     companion object {
         fun provideFactory(
-            sessionId: String,
+            sessionId: Int,
             repository: ViewExercisesRepository = ViewExercisesRepository(sessionId)
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")

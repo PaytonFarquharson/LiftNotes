@@ -31,7 +31,9 @@ fun NavGraphBuilder.workoutNavGraph(navController: NavHostController) {
             )
         }
         composable<Route.EditExercise> {
-            EditExerciseScreen()
+            EditExerciseScreen(
+                navigateBack = { navController.popBackStack() }
+            )
         }
     }
 }

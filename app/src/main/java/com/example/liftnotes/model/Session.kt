@@ -7,7 +7,7 @@ import java.time.DayOfWeek
 
 @Serializable
 data class Session(
-    val id: String,
+    val id: Int,
     val name: String,
     val description: String? = null,
     @DrawableRes val imageId: Int = R.drawable.ic_empty,
