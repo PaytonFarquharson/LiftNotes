@@ -35,13 +35,7 @@ object Route {
     object ViewSessions
 
     @Serializable
-    object EditSession
-
-    @Serializable
     data class ViewExercises(val sessionId: Int)
-
-    @Serializable
-    object EditExercise
 
     @Serializable
     object Settings

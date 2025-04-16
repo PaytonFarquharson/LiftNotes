@@ -3,6 +3,7 @@ package com.example.liftnotes.ui.screens.view_sessions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.liftnotes.model.CurrentSession
+import com.example.liftnotes.model.Session
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -14,8 +15,24 @@ class ViewSessionsViewModel(
         MutableStateFlow(repository.getCurrentSessions())
     val currentSessions: StateFlow<List<CurrentSession>> get() = _currentSessions
 
+    private val _bottomSheetState: MutableStateFlow<BottomSheetState> =
+        MutableStateFlow(BottomSheetState.Closed)
+    val bottomSheetState: StateFlow<BottomSheetState> get() = _bottomSheetState
+
     fun onCurrentSessionsReorder(currentSessions: List<CurrentSession>) {
         _currentSessions.value = currentSessions
+    }
+
+    fun onAddClick() {
+        _bottomSheetState.value = BottomSheetState.Add
+    }
+
+    fun onEditClick(session: Session) {
+        _bottomSheetState.value = BottomSheetState.Edit(session)
+    }
+
+    fun onBottomSheetClose() {
+        _bottomSheetState.value = BottomSheetState.Closed
     }
 
     companion object {
@@ -28,4 +45,10 @@ class ViewSessionsViewModel(
             }
         }
     }
+}
+
+sealed class BottomSheetState {
+    object Closed: BottomSheetState()
+    object Add: BottomSheetState()
+    data class Edit(val session: Session): BottomSheetState()
 }

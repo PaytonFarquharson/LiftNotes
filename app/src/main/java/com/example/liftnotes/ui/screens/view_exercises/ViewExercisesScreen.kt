@@ -33,7 +33,6 @@ import com.example.liftnotes.ui.common.CardNameDescription
 import com.example.liftnotes.ui.common.ExerciseValues
 import com.example.liftnotes.ui.common.FloatingAddButton
 import com.example.liftnotes.ui.common.ReorderHapticFeedbackType
-import com.example.liftnotes.ui.common.ReorderIconButton
 import com.example.liftnotes.ui.common.ReorderableCard
 import com.example.liftnotes.ui.common.rememberReorderHapticFeedback
 import sh.calvin.reorderable.ReorderableItem
@@ -43,7 +42,6 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 @Composable
 fun ViewExercisesScreen(
     sessionId: Int,
-    onExerciseClick: (Int) -> Unit,
     navigateBack: () -> Unit,
     viewModel: ViewExercisesViewModel = viewModel(factory = ViewExercisesViewModel.provideFactory(sessionId))
 ) {
@@ -74,13 +72,12 @@ fun ViewExercisesScreen(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
         val list by viewModel.currentExercises.collectAsStateWithLifecycle()
-        Content(onExerciseClick, { viewModel.onCurrentExercisesReorder(it) }, list, innerPadding)
+        Content({ viewModel.onCurrentExercisesReorder(it) }, list, innerPadding)
     }
 }
 
 @Composable
 private fun Content(
-    onExerciseClick: (Int) -> Unit,
     onExercisesReorder: (List<Exercise>) -> Unit,
     list: List<Exercise>,
     innerPadding: PaddingValues
@@ -104,7 +101,7 @@ private fun Content(
     ) {
         itemsIndexed(list, key = { _, exercise -> exercise.id }) { _, exercise ->
             ReorderableItem(reorderableLazyListState, key = exercise.id) { isDragging ->
-                ReorderableCard({ onExerciseClick(exercise.id) }) {
+                ReorderableCard({ /*TODO: onClick*/ }) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
