@@ -1,8 +1,10 @@
 package com.example.liftnotes.ui.screens.view_sessions
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -53,12 +55,19 @@ fun ViewSessionsScreen(
             )
         },
         floatingActionButton = {
-            FloatingAddButton(onClick = {})
+            FloatingAddButton(onClick = { viewModel.onAddClick() })
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
-        val list by viewModel.currentSessions.collectAsStateWithLifecycle()
-        Content(onSessionClick, { viewModel.onCurrentSessionsReorder(it) }, list, innerPadding)
+        Box {
+            val list by viewModel.currentSessions.collectAsStateWithLifecycle()
+            val bottomSheetState by viewModel.bottomSheetState.collectAsStateWithLifecycle()
+            Content(onSessionClick, { viewModel.onCurrentSessionsReorder(it) }, list, innerPadding)
+            EditSessionBottomSheet(
+                bottomSheetState = bottomSheetState,
+                onBottomSheetEvent = { event -> viewModel.onBottomSheetEvent(event) },
+            )
+        }
     }
 }
 
@@ -86,15 +95,28 @@ private fun Content(
         state = lazyListState,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        itemsIndexed(list, key = { _, currentSession -> currentSession.session.id }) { _, currentSession ->
-            ReorderableItem(reorderableLazyListState, key = currentSession.session.id) { isDragging ->
+        itemsIndexed(
+            list,
+            key = { _, currentSession -> currentSession.session.id }) { _, currentSession ->
+            ReorderableItem(
+                reorderableLazyListState,
+                key = currentSession.session.id
+            ) { isDragging ->
                 ReorderableCard({ onSessionClick(currentSession.session.id) }) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .draggableHandle(
-                                onDragStarted = { haptic.performHapticFeedback(ReorderHapticFeedbackType.START) },
-                                onDragStopped = { haptic.performHapticFeedback(ReorderHapticFeedbackType.END) },
+                                onDragStarted = {
+                                    haptic.performHapticFeedback(
+                                        ReorderHapticFeedbackType.START
+                                    )
+                                },
+                                onDragStopped = {
+                                    haptic.performHapticFeedback(
+                                        ReorderHapticFeedbackType.END
+                                    )
+                                },
                             )
                             .padding(vertical = 8.dp)
                     ) {
@@ -109,6 +131,7 @@ private fun Content(
                             Modifier
                                 .weight(0.5f)
                                 .padding(end = 8.dp)
+                                .fillMaxHeight()
                         )
                     }
                 }

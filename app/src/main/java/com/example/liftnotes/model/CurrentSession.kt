@@ -9,5 +9,5 @@ data class CurrentSession(
 
 data class CompletionDay(
     val dayOfWeek: DayOfWeek,
-    val isCompleted: Boolean = false
+    var isHighlighted: Boolean = false
 )

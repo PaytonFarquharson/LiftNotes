@@ -2,10 +2,12 @@ package com.example.liftnotes.ui.screens.view_sessions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.liftnotes.model.CompletionDay
 import com.example.liftnotes.model.CurrentSession
 import com.example.liftnotes.model.Session
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.time.DayOfWeek
 
 class ViewSessionsViewModel(
     private val repository: ViewSessionsRepository
@@ -24,15 +26,61 @@ class ViewSessionsViewModel(
     }
 
     fun onAddClick() {
-        _bottomSheetState.value = BottomSheetState.Add
+        _bottomSheetState.value = BottomSheetState.Edit(completionDays = getCompletionDays())
     }
 
     fun onEditClick(session: Session) {
-        _bottomSheetState.value = BottomSheetState.Edit(session)
+        _bottomSheetState.value = BottomSheetState.Edit(
+            session.id,
+            session.name,
+            session.description.orEmpty(),
+            session.imageId,
+            getCompletionDays(session.daysOfWeek)
+        )
     }
 
-    fun onBottomSheetClose() {
-        _bottomSheetState.value = BottomSheetState.Closed
+    private fun getCompletionDays(daysOfWeek: List<DayOfWeek> = emptyList()): List<CompletionDay> {
+        val completionsDays = mutableListOf<CompletionDay>()
+        for (day in DayOfWeek.entries) {
+            completionsDays.add(CompletionDay(day, daysOfWeek.contains(day)))
+        }
+        return completionsDays
+    }
+
+    fun onBottomSheetEvent(event: BottomSheetEvent) {
+        when(event) {
+            is BottomSheetEvent.NameChanged -> {
+                (_bottomSheetState.value as? BottomSheetState.Edit)?.let {
+                    _bottomSheetState.value = it.copy(name = event.name)
+                }
+            }
+            is BottomSheetEvent.DescriptionChanged -> {
+                (_bottomSheetState.value as? BottomSheetState.Edit)?.let {
+                    _bottomSheetState.value = it.copy(description = event.description)
+                }
+            }
+            is BottomSheetEvent.IconChanged -> {
+                (_bottomSheetState.value as? BottomSheetState.Edit)?.let {
+                    _bottomSheetState.value = it.copy(imageId = event.imageId)
+                }
+            }
+            is BottomSheetEvent.DayChanged -> {
+                (_bottomSheetState.value as? BottomSheetState.Edit)?.let {
+                    for (completionDay in it.completionDays) {
+                        if (completionDay.dayOfWeek == event.completionDay.dayOfWeek) {
+                            completionDay.isHighlighted = event.completionDay.isHighlighted
+                        }
+                    }
+                    //_bottomSheetState.value = it.copy(completionDays = event.completionDay)
+                }
+            }
+            is BottomSheetEvent.Close -> {
+                _bottomSheetState.value = BottomSheetState.Closed
+            }
+            is BottomSheetEvent.Save -> {
+
+            }
+        }
     }
 
     companion object {
@@ -49,6 +97,20 @@ class ViewSessionsViewModel(
 
 sealed class BottomSheetState {
     object Closed: BottomSheetState()
-    object Add: BottomSheetState()
-    data class Edit(val session: Session): BottomSheetState()
+    data class Edit(
+        val id: Int? = null,
+        val name: String = "",
+        val description: String = "",
+        val imageId: Int? = null,
+        val completionDays: List<CompletionDay>
+    ): BottomSheetState()
+}
+
+sealed class BottomSheetEvent {
+    data class NameChanged(val name: String): BottomSheetEvent()
+    data class DescriptionChanged(val description: String): BottomSheetEvent()
+    data class IconChanged(val imageId: Int): BottomSheetEvent()
+    data class DayChanged(val completionDay: CompletionDay): BottomSheetEvent()
+    object Close: BottomSheetEvent()
+    object Save: BottomSheetEvent()
 }
