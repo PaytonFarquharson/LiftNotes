@@ -2,43 +2,118 @@ package com.example.liftnotes.ui.common
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.example.liftnotes.R
 
 @Composable
 fun IconPicker(
-    onIconSelected: (Int) -> Unit
+    onIconSelected: (Int) -> Unit,
+    @DrawableRes currentIcon: Int
 ) {
-//    Dialog(
-//        onDismissRequest = {}
-//    ) {
-        val icons = Icons.getIcons()
-        LazyHorizontalGrid(
+    val showDialog = remember { mutableStateOf(false) }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(8.dp)
+    ) {
+        val iconColor = if (currentIcon == R.drawable.ic_empty) {
+            MaterialTheme.colorScheme.outline
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
+        Icon(
+            ImageVector.vectorResource(currentIcon),
+            contentDescription = "Icon",
+            tint = iconColor,
             modifier = Modifier
-                .padding(horizontal = 8.dp),
-            rows = GridCells.FixedSize(48.dp)
+                .padding(horizontal = 8.dp)
+                .size(32.dp)
+        )
+
+        ElevatedButton(
+            onClick = { showDialog.value = true },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ),
+            modifier = Modifier
+                .padding(start = 8.dp)
         ) {
-            items(
-                count = icons.size,
-                itemContent = { index ->
-                    IconItemView(
-                        imageId = icons[index],
-                        onIconSelected = onIconSelected
-                    )
-                }
+            Text(
+                text = "Select Icon",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelMedium
             )
         }
-//    }
+    }
+
+    if (showDialog.value) {
+        IconPickerDialog(
+            onIconSelected
+        ) { showDialog.value = false }
+    }
+}
+
+@Composable
+fun IconPickerDialog(
+    onIconSelected: (Int) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    AlertDialog(
+        title = {
+            Text(text = "Select Icon")
+        },
+        text = {
+            val icons = Icons.getIcons()
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp),
+                columns = GridCells.FixedSize(48.dp)
+            ) {
+                items(
+                    count = icons.size,
+                    itemContent = { index ->
+                        IconItemView(
+                            imageId = icons[index],
+                            onIconSelected = onIconSelected
+                        )
+                    }
+                )
+            }
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+
+        },
+        dismissButton = {
+
+        }
+    )
 }
 
 @Composable

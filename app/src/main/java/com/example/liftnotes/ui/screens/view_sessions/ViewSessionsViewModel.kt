@@ -2,6 +2,7 @@ package com.example.liftnotes.ui.screens.view_sessions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.liftnotes.R
 import com.example.liftnotes.model.CompletionDay
 import com.example.liftnotes.model.CurrentSession
 import com.example.liftnotes.model.Session
@@ -66,12 +67,15 @@ class ViewSessionsViewModel(
             }
             is BottomSheetEvent.DayChanged -> {
                 (_bottomSheetState.value as? BottomSheetState.Edit)?.let {
+                    val completionDays: MutableList<CompletionDay> = mutableListOf()
                     for (completionDay in it.completionDays) {
-                        if (completionDay.dayOfWeek == event.completionDay.dayOfWeek) {
-                            completionDay.isHighlighted = event.completionDay.isHighlighted
+                        if (completionDay.dayOfWeek == event.dayOfWeek) {
+                            completionDays.add(completionDay.copy(isHighlighted = !completionDay.isHighlighted))
+                        } else {
+                            completionDays.add(completionDay)
                         }
                     }
-                    //_bottomSheetState.value = it.copy(completionDays = event.completionDay)
+                    _bottomSheetState.value = it.copy(completionDays = completionDays)
                 }
             }
             is BottomSheetEvent.Close -> {
@@ -101,7 +105,7 @@ sealed class BottomSheetState {
         val id: Int? = null,
         val name: String = "",
         val description: String = "",
-        val imageId: Int? = null,
+        val imageId: Int = R.drawable.ic_empty,
         val completionDays: List<CompletionDay>
     ): BottomSheetState()
 }
@@ -110,7 +114,7 @@ sealed class BottomSheetEvent {
     data class NameChanged(val name: String): BottomSheetEvent()
     data class DescriptionChanged(val description: String): BottomSheetEvent()
     data class IconChanged(val imageId: Int): BottomSheetEvent()
-    data class DayChanged(val completionDay: CompletionDay): BottomSheetEvent()
+    data class DayChanged(val dayOfWeek: DayOfWeek): BottomSheetEvent()
     object Close: BottomSheetEvent()
     object Save: BottomSheetEvent()
 }
