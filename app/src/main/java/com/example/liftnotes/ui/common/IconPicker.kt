@@ -1,32 +1,36 @@
 package com.example.liftnotes.ui.common
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.liftnotes.R
+import com.example.liftnotes.ui.common.SelectableIcons.emptyIcon
 
 @Composable
 fun IconPicker(
@@ -39,7 +43,7 @@ fun IconPicker(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(8.dp)
     ) {
-        val iconColor = if (currentIcon == R.drawable.ic_empty) {
+        val iconColor = if (currentIcon == emptyIcon) {
             MaterialTheme.colorScheme.outline
         } else {
             MaterialTheme.colorScheme.onSurface
@@ -72,6 +76,7 @@ fun IconPicker(
 
     if (showDialog.value) {
         IconPickerDialog(
+            currentIcon,
             onIconSelected
         ) { showDialog.value = false }
     }
@@ -79,25 +84,26 @@ fun IconPicker(
 
 @Composable
 fun IconPickerDialog(
+    @DrawableRes currentIcon: Int,
     onIconSelected: (Int) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     AlertDialog(
+        containerColor = MaterialTheme.colorScheme.background,
         title = {
             Text(text = "Select Icon")
         },
         text = {
-            val icons = Icons.getIcons()
+            val icons = SelectableIcons.getIcons()
             LazyVerticalGrid(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp),
-                columns = GridCells.FixedSize(48.dp)
+                columns = GridCells.FixedSize(54.dp)
             ) {
                 items(
                     count = icons.size,
                     itemContent = { index ->
                         IconItemView(
                             imageId = icons[index],
+                            currentIcon = currentIcon,
                             onIconSelected = onIconSelected
                         )
                     }
@@ -108,28 +114,51 @@ fun IconPickerDialog(
             onDismissRequest()
         },
         confirmButton = {
-
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("OK")
+            }
         },
         dismissButton = {
-
+            TextButton(
+                onClick = {
+                    onIconSelected(emptyIcon)
+                    onDismissRequest()
+                }
+            ) {
+                Text("Clear")
+            }
         }
     )
 }
 
 @Composable
-fun IconItemView(@DrawableRes imageId: Int, onIconSelected: (Int) -> Unit) {
-    Icon(
-        imageVector = ImageVector.vectorResource(imageId),
-        contentDescription = "",
+fun IconItemView(@DrawableRes imageId: Int, @DrawableRes currentIcon: Int, onIconSelected: (Int) -> Unit) {
+    Box(
         modifier = Modifier
-            .padding(4.dp)
+            .clip(RoundedCornerShape(8.dp))
             .clickable {
                 onIconSelected(imageId)
             }
-    )
+            .background(
+                if (imageId == currentIcon) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background
+            )
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(imageId),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(8.dp)
+        )
+    }
 }
 
-object Icons {
+object SelectableIcons {
+    val emptyIcon = R.drawable.ic_empty
+
     val gearIcons = listOf(
         R.drawable.ic_ab_wheel,
         R.drawable.ic_balance_ball,
