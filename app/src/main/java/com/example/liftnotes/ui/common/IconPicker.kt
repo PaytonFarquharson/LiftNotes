@@ -2,7 +2,6 @@ package com.example.liftnotes.ui.common
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -10,11 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.liftnotes.R
 import com.example.liftnotes.ui.common.SelectableIcons.emptyIcon
@@ -57,20 +53,12 @@ fun IconPicker(
                 .size(32.dp)
         )
 
-        ElevatedButton(
+        FilledTonalButton(
             onClick = { showDialog.value = true },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ),
             modifier = Modifier
                 .padding(start = 8.dp)
         ) {
-            Text(
-                text = "Select Icon",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium
-            )
+            Text(text = "Select Icon")
         }
     }
 
@@ -144,7 +132,7 @@ fun IconItemView(@DrawableRes imageId: Int, @DrawableRes currentIcon: Int, onIco
                 onIconSelected(imageId)
             }
             .background(
-                if (imageId == currentIcon) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background
+                if (imageId == currentIcon) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.background
             )
     ) {
         Icon(

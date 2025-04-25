@@ -61,7 +61,7 @@ fun EditSessionBottomSheet(
                     onClick = { dayOfWeek -> onBottomSheetEvent(BottomSheetEvent.DayChanged(dayOfWeek)) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(horizontal = 8.dp)
                 )
 
                 FormButtons(
