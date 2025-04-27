@@ -52,13 +52,25 @@ fun EditSessionBottomSheet(
                 )
 
                 IconPicker(
-                    onIconSelected = { imageId -> onBottomSheetEvent(BottomSheetEvent.IconChanged(imageId))},
+                    onIconSelected = { imageId ->
+                        onBottomSheetEvent(
+                            BottomSheetEvent.IconChanged(
+                                imageId
+                            )
+                        )
+                    },
                     bottomSheetState.imageId
                 )
 
                 DaySelector(
                     completionDays = bottomSheetState.completionDays,
-                    onClick = { dayOfWeek -> onBottomSheetEvent(BottomSheetEvent.DayChanged(dayOfWeek)) },
+                    onClick = { dayOfWeek ->
+                        onBottomSheetEvent(
+                            BottomSheetEvent.DayChanged(
+                                dayOfWeek
+                            )
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp)
