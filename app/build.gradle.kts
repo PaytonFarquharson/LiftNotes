@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.android.ksp)
 }
 
 android {
@@ -46,6 +48,7 @@ dependencies {
 
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
+    testImplementation(libs.junit4)
     androidTestImplementation(composeBom)
 
     implementation(libs.androidx.core.ktx)
@@ -64,6 +67,10 @@ dependencies {
     implementation(libs.androidx.compose.material.iconsExtended)
     implementation(libs.androidx.compose.materialWindow)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
+
     implementation(libs.kotlinx.datetime)
     implementation(libs.reorderable)
 }
