@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.liftnotes.ui.screens.settings.SettingsScreen
+import com.example.liftnotes.feature.settings.SettingsScreen
 import kotlinx.serialization.Serializable
 
 @Composable

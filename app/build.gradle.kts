@@ -19,7 +19,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.liftnotes.HiltTestRunner"
     }
 
     buildTypes {
@@ -46,9 +46,12 @@ android {
 dependencies {
 
 
+    implementation(libs.androidx.ui.test.junit4.android)
+    implementation(libs.androidx.runner)
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     testImplementation(libs.junit4)
+    androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(composeBom)
 
     implementation(libs.androidx.core.ktx)
