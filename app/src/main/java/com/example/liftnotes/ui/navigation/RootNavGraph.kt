@@ -16,27 +16,24 @@ fun RootNavGraph(navController: NavHostController, modifier: Modifier) {
         modifier = modifier
     ) {
         workoutNavGraph(navController = navController)
-        composable<Route.Settings> {
+        composable(Screen.Settings.route) {
             SettingsScreen()
         }
     }
 }
 
-object Graph {
+@Serializable
+sealed interface Graph {
     @Serializable
-    object WorkoutGraph
+    data object WorkoutGraph: Graph
 
     @Serializable
-    object ArchiveGraph
+    data object ArchiveGraph: Graph
 }
 
-object Route {
-    @Serializable
-    object ViewSessions
 
-    @Serializable
-    data class ViewExercises(val sessionId: Int)
-
-    @Serializable
-    object Settings
+sealed class Screen(val route: String) {
+    object ViewSessions: Screen("view_sessions")
+    object ViewExercises: Screen("view_exercises")
+    object Settings: Screen("settings")
 }

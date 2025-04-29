@@ -11,17 +11,18 @@ import com.example.liftnotes.feature.view_sessions.ViewSessionsScreen
 
 fun NavGraphBuilder.workoutNavGraph(navController: NavHostController) {
     navigation<Graph.WorkoutGraph>(
-        startDestination = Route.ViewSessions
+        startDestination = Screen.ViewSessions.route
     ) {
-        composable<Route.ViewSessions> {
+        composable(Screen.ViewSessions.route) {
             ViewSessionsScreen(
-                onSessionClick = { navController.navigate("viewExercises/$it") }
+                onSessionClick = { navController.navigate("${Screen.ViewExercises.route}/$it") }
             )
         }
         composable(
-            "viewExercises/{id}",
+            "${Screen.ViewExercises.route}/{id}",
             arguments = listOf(navArgument("id") {type = NavType.IntType})
-        ) {
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id") ?: -1
             ViewExercisesScreen(
                 navigateBack = { navController.popBackStack() }
             )
