@@ -21,22 +21,22 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditSessionBottomSheet(
-    bottomSheetState: BottomSheetState,
-    onBottomSheetEvent: (BottomSheetEvent) -> Unit,
+    bottomSheetState: EditSessionBottomSheetState,
+    onBottomSheetEvent: (EditSessionBottomSheetEvent) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
 
-    if (bottomSheetState is BottomSheetState.Edit) {
+    if (bottomSheetState is EditSessionBottomSheetState.Edit) {
         ModalBottomSheet(
             containerColor = MaterialTheme.colorScheme.background,
-            onDismissRequest = { onBottomSheetEvent(BottomSheetEvent.Close) },
+            onDismissRequest = { onBottomSheetEvent(EditSessionBottomSheetEvent.Close) },
             sheetState = sheetState
         ) {
             Column {
                 OutlinedTextField(
                     value = bottomSheetState.name,
-                    onValueChange = { onBottomSheetEvent(BottomSheetEvent.NameChanged(it)) },
+                    onValueChange = { onBottomSheetEvent(EditSessionBottomSheetEvent.NameChanged(it)) },
                     label = { Text(text = "Name") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -44,7 +44,7 @@ fun EditSessionBottomSheet(
                 )
                 OutlinedTextField(
                     value = bottomSheetState.description,
-                    onValueChange = { onBottomSheetEvent(BottomSheetEvent.DescriptionChanged(it)) },
+                    onValueChange = { onBottomSheetEvent(EditSessionBottomSheetEvent.DescriptionChanged(it)) },
                     label = { Text(text = "Description") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -54,7 +54,7 @@ fun EditSessionBottomSheet(
                 IconPicker(
                     onIconSelected = { imageId ->
                         onBottomSheetEvent(
-                            BottomSheetEvent.IconChanged(
+                            EditSessionBottomSheetEvent.IconChanged(
                                 imageId
                             )
                         )
@@ -66,7 +66,7 @@ fun EditSessionBottomSheet(
                     completionDays = bottomSheetState.completionDays,
                     onClick = { dayOfWeek ->
                         onBottomSheetEvent(
-                            BottomSheetEvent.DayChanged(
+                            EditSessionBottomSheetEvent.DayChanged(
                                 dayOfWeek
                             )
                         )
@@ -81,10 +81,10 @@ fun EditSessionBottomSheet(
                         coroutineScope.launch {
                             sheetState.hide()
                         }.invokeOnCompletion {
-                            onBottomSheetEvent(BottomSheetEvent.Close)
+                            onBottomSheetEvent(EditSessionBottomSheetEvent.Close)
                         }
                     },
-                    { onBottomSheetEvent(BottomSheetEvent.Save) }
+                    { onBottomSheetEvent(EditSessionBottomSheetEvent.Save) }
                 )
             }
         }

@@ -21,12 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.liftnotes.model.Exercise
 import com.example.liftnotes.ui.components.CardIcon
 import com.example.liftnotes.ui.components.CardNameDescription
@@ -41,8 +38,8 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewExercisesScreen(
-    navigateBack: () -> Unit,
-    viewModel: ViewExercisesViewModel = hiltViewModel()
+    uiState: ViewExercisesUiState,
+    onEvent: (ViewExercisesUiEvent) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -55,7 +52,7 @@ fun ViewExercisesScreen(
                     Text("Exercises")
                 },
                 navigationIcon = {
-                    IconButton(onClick = navigateBack) {
+                    IconButton(onClick = { onEvent(ViewExercisesUiEvent.BackPressed) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             tint = MaterialTheme.colorScheme.onPrimary,
@@ -70,13 +67,11 @@ fun ViewExercisesScreen(
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
-        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-        when (val state = uiState) {
-            UiState.Loading -> Loading()
-            is UiState.Success -> Success(
-                { viewModel.onCurrentExercisesReorder(it) },
-                state.exercises,
+        when (uiState) {
+            ViewExercisesUiState.Loading -> Loading()
+            is ViewExercisesUiState.Success -> Success(
+                onEvent,
+                uiState.exercises,
                 innerPadding
             )
         }
@@ -90,7 +85,7 @@ private fun Loading() {
 
 @Composable
 private fun Success(
-    onExercisesReorder: (List<Exercise>) -> Unit,
+    onEvent: (ViewExercisesUiEvent) -> Unit,
     list: List<Exercise>,
     innerPadding: PaddingValues
 ) {
@@ -100,7 +95,7 @@ private fun Success(
         val reorderedList = list.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
-        onExercisesReorder(reorderedList)
+        onEvent(ViewExercisesUiEvent.CurrentExercisesReordered(reorderedList))
         haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
     }
 
@@ -118,8 +113,16 @@ private fun Success(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .draggableHandle(
-                                onDragStarted = { haptic.performHapticFeedback(ReorderHapticFeedbackType.START) },
-                                onDragStopped = { haptic.performHapticFeedback(ReorderHapticFeedbackType.END) },
+                                onDragStarted = {
+                                    haptic.performHapticFeedback(
+                                        ReorderHapticFeedbackType.START
+                                    )
+                                },
+                                onDragStopped = {
+                                    haptic.performHapticFeedback(
+                                        ReorderHapticFeedbackType.END
+                                    )
+                                },
                             )
                             .padding(vertical = 8.dp)
                     ) {

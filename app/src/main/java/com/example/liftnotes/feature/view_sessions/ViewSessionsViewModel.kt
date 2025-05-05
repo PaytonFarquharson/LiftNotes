@@ -8,7 +8,9 @@ import com.example.liftnotes.model.CompletionDay
 import com.example.liftnotes.model.CurrentSession
 import com.example.liftnotes.model.Session
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -19,36 +21,52 @@ class ViewSessionsViewModel @Inject constructor(
     private val repository: ViewSessionsRepository
 ) : ViewModel() {
 
-    private val _uiState: MutableStateFlow<UiState> =
-        MutableStateFlow(UiState.Loading)
+    private val _uiState: MutableStateFlow<ViewSessionsUiState> =
+        MutableStateFlow(ViewSessionsUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
-    private val _bottomSheetState: MutableStateFlow<BottomSheetState> =
-        MutableStateFlow(BottomSheetState.Closed)
+    private val _effect = MutableSharedFlow<ViewSessionsUiEffect>()
+    val effect = _effect.asSharedFlow()
+
+    private val _bottomSheetState: MutableStateFlow<EditSessionBottomSheetState> =
+        MutableStateFlow(EditSessionBottomSheetState.Closed)
     val bottomSheetState = _bottomSheetState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            _uiState.value = UiState.Success(repository.getCurrentSessions())
+            _uiState.value = ViewSessionsUiState.Success(repository.getCurrentSessions())
         }
     }
 
-    fun onCurrentSessionsReorder(currentSessions: List<CurrentSession>) {
-        _uiState.value = UiState.Success(currentSessions)
-    }
+    fun onUiEvent(event: ViewSessionsUiEvent) {
+        when (event) {
+            is ViewSessionsUiEvent.SessionClicked -> {
+                viewModelScope.launch { _effect.emit(ViewSessionsUiEffect.NavigateToSession(event.sessionId)) }
+            }
 
-    fun onAddClick() {
-        _bottomSheetState.value = BottomSheetState.Edit(completionDays = getCompletionDays())
-    }
+            is ViewSessionsUiEvent.CurrentSessionsReordered -> {
+                _uiState.value = ViewSessionsUiState.Success(event.currentSessions)
+            }
 
-    fun onEditClick(session: Session) {
-        _bottomSheetState.value = BottomSheetState.Edit(
-            session.id,
-            session.name,
-            session.description.orEmpty(),
-            session.imageId,
-            getCompletionDays(session.daysOfWeek)
-        )
+            is ViewSessionsUiEvent.AddClicked -> {
+                _bottomSheetState.value =
+                    EditSessionBottomSheetState.Edit(completionDays = getCompletionDays())
+            }
+
+            is ViewSessionsUiEvent.EditClicked -> {
+                _bottomSheetState.value = EditSessionBottomSheetState.Edit(
+                    event.session.id,
+                    event.session.name,
+                    event.session.description.orEmpty(),
+                    event.session.imageId,
+                    getCompletionDays(event.session.daysOfWeek)
+                )
+            }
+
+            is ViewSessionsUiEvent.DeleteClicked -> {
+                TODO()
+            }
+        }
     }
 
     private fun getCompletionDays(daysOfWeek: List<DayOfWeek> = emptyList()): List<CompletionDay> {
@@ -59,25 +77,28 @@ class ViewSessionsViewModel @Inject constructor(
         return completionsDays
     }
 
-    fun onBottomSheetEvent(event: BottomSheetEvent) {
-        when(event) {
-            is BottomSheetEvent.NameChanged -> {
-                (_bottomSheetState.value as? BottomSheetState.Edit)?.let {
+    fun onBottomSheetEvent(event: EditSessionBottomSheetEvent) {
+        when (event) {
+            is EditSessionBottomSheetEvent.NameChanged -> {
+                (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let {
                     _bottomSheetState.value = it.copy(name = event.name)
                 }
             }
-            is BottomSheetEvent.DescriptionChanged -> {
-                (_bottomSheetState.value as? BottomSheetState.Edit)?.let {
+
+            is EditSessionBottomSheetEvent.DescriptionChanged -> {
+                (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let {
                     _bottomSheetState.value = it.copy(description = event.description)
                 }
             }
-            is BottomSheetEvent.IconChanged -> {
-                (_bottomSheetState.value as? BottomSheetState.Edit)?.let {
+
+            is EditSessionBottomSheetEvent.IconChanged -> {
+                (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let {
                     _bottomSheetState.value = it.copy(imageId = event.imageId)
                 }
             }
-            is BottomSheetEvent.DayChanged -> {
-                (_bottomSheetState.value as? BottomSheetState.Edit)?.let {
+
+            is EditSessionBottomSheetEvent.DayChanged -> {
+                (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let {
                     val completionDays: MutableList<CompletionDay> = mutableListOf()
                     for (completionDay in it.completionDays) {
                         if (completionDay.dayOfWeek == event.dayOfWeek) {
@@ -89,37 +110,53 @@ class ViewSessionsViewModel @Inject constructor(
                     _bottomSheetState.value = it.copy(completionDays = completionDays)
                 }
             }
-            is BottomSheetEvent.Close -> {
-                _bottomSheetState.value = BottomSheetState.Closed
+
+            is EditSessionBottomSheetEvent.Close -> {
+                _bottomSheetState.value = EditSessionBottomSheetState.Closed
             }
-            is BottomSheetEvent.Save -> {
+
+            is EditSessionBottomSheetEvent.Save -> {
 
             }
         }
     }
 }
 
-sealed class UiState {
-    object Loading: UiState()
-    data class Success(val sessions: List<CurrentSession>): UiState()
+sealed class ViewSessionsUiState {
+    object Loading : ViewSessionsUiState()
+    data class Success(val sessions: List<CurrentSession>) : ViewSessionsUiState()
 }
 
-sealed class BottomSheetState {
-    object Closed: BottomSheetState()
+sealed class ViewSessionsUiEffect {
+    data class NavigateToSession(val sessionId: Int) : ViewSessionsUiEffect()
+}
+
+sealed class ViewSessionsUiEvent {
+    data class SessionClicked(val sessionId: Int) : ViewSessionsUiEvent()
+    data class CurrentSessionsReordered(val currentSessions: List<CurrentSession>) :
+        ViewSessionsUiEvent()
+
+    object AddClicked : ViewSessionsUiEvent()
+    data class EditClicked(val session: Session) : ViewSessionsUiEvent()
+    data class DeleteClicked(val session: Session) : ViewSessionsUiEvent()
+}
+
+sealed class EditSessionBottomSheetState {
+    object Closed : EditSessionBottomSheetState()
     data class Edit(
         val id: Int? = null,
         val name: String = "",
         val description: String = "",
         val imageId: Int = R.drawable.ic_empty,
         val completionDays: List<CompletionDay>
-    ): BottomSheetState()
+    ) : EditSessionBottomSheetState()
 }
 
-sealed class BottomSheetEvent {
-    data class NameChanged(val name: String): BottomSheetEvent()
-    data class DescriptionChanged(val description: String): BottomSheetEvent()
-    data class IconChanged(val imageId: Int): BottomSheetEvent()
-    data class DayChanged(val dayOfWeek: DayOfWeek): BottomSheetEvent()
-    object Close: BottomSheetEvent()
-    object Save: BottomSheetEvent()
+sealed class EditSessionBottomSheetEvent {
+    data class NameChanged(val name: String) : EditSessionBottomSheetEvent()
+    data class DescriptionChanged(val description: String) : EditSessionBottomSheetEvent()
+    data class IconChanged(val imageId: Int) : EditSessionBottomSheetEvent()
+    data class DayChanged(val dayOfWeek: DayOfWeek) : EditSessionBottomSheetEvent()
+    object Close : EditSessionBottomSheetEvent()
+    object Save : EditSessionBottomSheetEvent()
 }

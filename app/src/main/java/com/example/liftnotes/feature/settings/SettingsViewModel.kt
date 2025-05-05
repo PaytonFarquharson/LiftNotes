@@ -15,17 +15,17 @@ class SettingsViewModel @Inject constructor(
     private val repository: SettingsRepository
 ) : ViewModel() {
 
-    private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
+    private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            _uiState.value = UiState.Success(repository.getSettings())
+            _uiState.value = SettingsUiState.Success(repository.getSettings())
         }
     }
 
-    sealed class UiState {
-        object Loading: UiState()
-        data class Success(val settings: Settings): UiState()
+    sealed class SettingsUiState {
+        object Loading: SettingsUiState()
+        data class Success(val settings: Settings): SettingsUiState()
     }
 }

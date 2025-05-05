@@ -25,13 +25,12 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.liftnotes.R
-import com.example.liftnotes.ui.navigation.Graph
-import com.example.liftnotes.ui.navigation.RootNavGraph
 import com.example.liftnotes.feature.BottomNavItem.History
 import com.example.liftnotes.feature.BottomNavItem.Library
 import com.example.liftnotes.feature.BottomNavItem.Settings
 import com.example.liftnotes.feature.BottomNavItem.Workout
-import com.example.liftnotes.ui.navigation.Screen
+import com.example.liftnotes.ui.navigation.RootNavGraph
+import com.example.liftnotes.ui.navigation.RootNavRoute
 
 @Composable
 fun MainScreen(navController: NavHostController = rememberNavController()) {
@@ -97,9 +96,9 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
     }
 }
 
-sealed class BottomNavItem(val route: Any, @DrawableRes val icon: Int, val label: String) {
-    object Workout : BottomNavItem(Graph.WorkoutGraph, R.drawable.ic_dumbbell, "Workout")
-    object Library : BottomNavItem(Graph.WorkoutGraph, R.drawable.ic_book, "Library")
-    object History : BottomNavItem(Graph.WorkoutGraph, R.drawable.ic_history, "History")
-    object Settings : BottomNavItem(Screen.Settings, R.drawable.ic_settings, "Settings")
+sealed class BottomNavItem(val route: String, @DrawableRes val icon: Int, val label: String) {
+    object Workout : BottomNavItem(RootNavRoute.Workout.route, R.drawable.ic_dumbbell, "Workout")
+    object Library : BottomNavItem(RootNavRoute.Workout.route, R.drawable.ic_book, "Library")
+    object History : BottomNavItem(RootNavRoute.Workout.route, R.drawable.ic_history, "History")
+    object Settings : BottomNavItem(RootNavRoute.Settings.route, R.drawable.ic_settings, "Settings")
 }

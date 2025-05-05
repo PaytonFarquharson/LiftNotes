@@ -11,12 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = hiltViewModel()
+    uiState: SettingsViewModel.SettingsUiState
 ) {
     Scaffold(
         topBar = {
@@ -32,13 +31,13 @@ fun SettingsScreen(
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
-        Content(viewModel, innerPadding)
+        Content(uiState, innerPadding)
     }
 }
 
 @Composable
 private fun Content(
-    viewModel: SettingsViewModel,
+    uiState: SettingsViewModel.SettingsUiState,
     innerPadding: PaddingValues
 ) {
 

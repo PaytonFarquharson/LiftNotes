@@ -1,31 +1,80 @@
 package com.example.liftnotes.ui.navigation
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
 import com.example.liftnotes.feature.view_exercises.ViewExercisesScreen
+import com.example.liftnotes.feature.view_exercises.ViewExercisesUiEffect
+import com.example.liftnotes.feature.view_exercises.ViewExercisesViewModel
 import com.example.liftnotes.feature.view_sessions.ViewSessionsScreen
+import com.example.liftnotes.feature.view_sessions.ViewSessionsUiEffect
+import com.example.liftnotes.feature.view_sessions.ViewSessionsViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 fun NavGraphBuilder.workoutNavGraph(navController: NavHostController) {
-    navigation<Graph.WorkoutGraph>(
-        startDestination = Screen.ViewSessions.route
+    navigation(
+        route = RootNavRoute.Workout.route,
+        startDestination = WorkoutRoute.ViewSessions.route
     ) {
-        composable(Screen.ViewSessions.route) {
+        composable(WorkoutRoute.ViewSessions.route) {
+            val viewModel: ViewSessionsViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val bottomSheetState by viewModel.bottomSheetState.collectAsStateWithLifecycle()
+            LaunchedEffect(Unit) {
+                viewModel.effect.collectLatest {
+                    when (it) {
+                        is ViewSessionsUiEffect.NavigateToSession -> {
+                            navController.navigate(WorkoutRoute.ViewExercises.createRoute(it.sessionId))
+                        }
+                    }
+                }
+            }
+
             ViewSessionsScreen(
-                onSessionClick = { navController.navigate("${Screen.ViewExercises.route}/$it") }
+                uiState = uiState,
+                onEvent = { viewModel.onUiEvent(it) },
+                bottomSheetState = bottomSheetState,
+                onBottomSheetEvent = { viewModel.onBottomSheetEvent(it) }
             )
         }
         composable(
-            "${Screen.ViewExercises.route}/{id}",
-            arguments = listOf(navArgument("id") {type = NavType.IntType})
-        ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("id") ?: -1
+            WorkoutRoute.ViewExercises.route,
+            arguments = listOf(navArgument(WorkoutRoute.ARG_EXERCISE_ID) { type = NavType.IntType })
+        ) {
+            val viewModel: ViewExercisesViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            LaunchedEffect(Unit) {
+                viewModel.effect.collectLatest {
+                    when (it) {
+                        is ViewExercisesUiEffect.NavigateBack -> {
+                            navController.popBackStack()
+                        }
+                    }
+                }
+            }
+
             ViewExercisesScreen(
-                navigateBack = { navController.popBackStack() }
+                uiState = uiState,
+                onEvent = { viewModel.onUiEvent(it) }
             )
         }
+    }
+}
+
+sealed class WorkoutRoute(val route: String) {
+    object ViewSessions : WorkoutRoute("view_sessions")
+    object ViewExercises : WorkoutRoute("view_exercises/{$ARG_EXERCISE_ID}") {
+        fun createRoute(exerciseId: Int) = "view_exercises/$exerciseId"
+    }
+
+    companion object {
+        const val ARG_EXERCISE_ID = "exerciseId"
     }
 }

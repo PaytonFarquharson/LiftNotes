@@ -19,12 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.liftnotes.model.CurrentSession
 import com.example.liftnotes.ui.components.CardIcon
 import com.example.liftnotes.ui.components.CardNameDescription
@@ -39,8 +36,10 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewSessionsScreen(
-    onSessionClick: (Int) -> Unit,
-    viewModel: ViewSessionsViewModel = hiltViewModel()
+    uiState: ViewSessionsUiState,
+    onEvent: (ViewSessionsUiEvent) -> Unit,
+    bottomSheetState: EditSessionBottomSheetState,
+    onBottomSheetEvent: (EditSessionBottomSheetEvent) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -55,26 +54,22 @@ fun ViewSessionsScreen(
             )
         },
         floatingActionButton = {
-            FloatingAddButton(onClick = { viewModel.onAddClick() })
+            FloatingAddButton(onClick = { onEvent(ViewSessionsUiEvent.AddClicked) })
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
         Box {
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            val bottomSheetState by viewModel.bottomSheetState.collectAsStateWithLifecycle()
-
-            when (val state = uiState) {
-                UiState.Loading -> Loading()
-                is UiState.Success -> Success(
-                    onSessionClick,
-                    { viewModel.onCurrentSessionsReorder(it) },
-                    state.sessions,
+            when (uiState) {
+                ViewSessionsUiState.Loading -> Loading()
+                is ViewSessionsUiState.Success -> Success(
+                    onEvent,
+                    uiState.sessions,
                     innerPadding
                 )
             }
             EditSessionBottomSheet(
                 bottomSheetState = bottomSheetState,
-                onBottomSheetEvent = { event -> viewModel.onBottomSheetEvent(event) },
+                onBottomSheetEvent = onBottomSheetEvent,
             )
         }
     }
@@ -87,8 +82,7 @@ private fun Loading() {
 
 @Composable
 private fun Success(
-    onSessionClick: (Int) -> Unit,
-    onSessionsReorder: (List<CurrentSession>) -> Unit,
+    onEvent: (ViewSessionsUiEvent) -> Unit,
     list: List<CurrentSession>,
     innerPadding: PaddingValues
 ) {
@@ -98,7 +92,7 @@ private fun Success(
         val reorderedList = list.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
-        onSessionsReorder(reorderedList)
+        onEvent(ViewSessionsUiEvent.CurrentSessionsReordered(reorderedList))
         haptic.performHapticFeedback(ReorderHapticFeedbackType.MOVE)
     }
 
@@ -116,7 +110,7 @@ private fun Success(
                 reorderableLazyListState,
                 key = currentSession.session.id
             ) { isDragging ->
-                ReorderableCard({ onSessionClick(currentSession.session.id) }) {
+                ReorderableCard({ onEvent(ViewSessionsUiEvent.SessionClicked(currentSession.session.id)) }) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
