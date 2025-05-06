@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarDefaults
@@ -21,8 +22,10 @@ import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.liftnotes.model.CurrentSession
+import com.example.liftnotes.test.testCurrentSessionsModel
 import com.example.liftnotes.ui.components.CardIcon
 import com.example.liftnotes.ui.components.CardNameDescription
 import com.example.liftnotes.ui.components.CompletionTracker
@@ -30,6 +33,7 @@ import com.example.liftnotes.ui.components.FloatingAddButton
 import com.example.liftnotes.ui.components.ReorderHapticFeedbackType
 import com.example.liftnotes.ui.components.ReorderableCard
 import com.example.liftnotes.ui.components.rememberReorderHapticFeedback
+import com.example.liftnotes.ui.theme.LiftNotesTheme
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -60,12 +64,13 @@ fun ViewSessionsScreen(
     ) { innerPadding ->
         Box {
             when (uiState) {
-                ViewSessionsUiState.Loading -> Loading()
+                ViewSessionsUiState.Loading -> Loading(innerPadding)
                 is ViewSessionsUiState.Success -> Success(
                     onEvent,
                     uiState.sessions,
                     innerPadding
                 )
+                is ViewSessionsUiState.Error -> Error(innerPadding)
             }
             EditSessionBottomSheet(
                 bottomSheetState = bottomSheetState,
@@ -76,7 +81,19 @@ fun ViewSessionsScreen(
 }
 
 @Composable
-private fun Loading() {
+private fun Loading(innerPadding: PaddingValues) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun Error(innerPadding: PaddingValues) {
 
 }
 
@@ -145,5 +162,18 @@ private fun Success(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun ViewSessionsScreenPreview() {
+    LiftNotesTheme {
+        ViewSessionsScreen(
+            uiState = ViewSessionsUiState.Success(testCurrentSessionsModel),
+            onEvent = {},
+            bottomSheetState = EditSessionBottomSheetState.Closed,
+            onBottomSheetEvent = {}
+        )
     }
 }

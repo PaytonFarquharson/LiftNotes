@@ -50,6 +50,7 @@ fun NavGraphBuilder.workoutNavGraph(navController: NavHostController) {
         ) {
             val viewModel: ViewExercisesViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val bottomSheetState by viewModel.bottomSheetState.collectAsStateWithLifecycle()
             LaunchedEffect(Unit) {
                 viewModel.effect.collectLatest {
                     when (it) {
@@ -62,7 +63,9 @@ fun NavGraphBuilder.workoutNavGraph(navController: NavHostController) {
 
             ViewExercisesScreen(
                 uiState = uiState,
-                onEvent = { viewModel.onUiEvent(it) }
+                onEvent = { viewModel.onUiEvent(it) },
+                bottomSheetState = bottomSheetState,
+                onBottomSheetEvent = { viewModel.onBottomSheetEvent(it) }
             )
         }
     }

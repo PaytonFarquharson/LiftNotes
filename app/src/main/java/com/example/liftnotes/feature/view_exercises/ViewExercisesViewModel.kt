@@ -3,8 +3,10 @@ package com.example.liftnotes.feature.view_exercises
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.liftnotes.R
 import com.example.liftnotes.interfaces.ViewExercisesRepository
 import com.example.liftnotes.model.Exercise
+import com.example.liftnotes.model.ResultOf
 import com.example.liftnotes.ui.navigation.WorkoutRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,9 +31,20 @@ class ViewExercisesViewModel @Inject constructor(
     private val _effect = MutableSharedFlow<ViewExercisesUiEffect>()
     val effect = _effect.asSharedFlow()
 
+    private val _bottomSheetState: MutableStateFlow<EditExerciseBottomSheetState> =
+        MutableStateFlow(EditExerciseBottomSheetState.Closed)
+    val bottomSheetState = _bottomSheetState.asStateFlow()
+
     init {
+        fetchCurrentExercises()
+    }
+
+    private fun fetchCurrentExercises() {
         viewModelScope.launch {
-            _uiState.value = ViewExercisesUiState.Success(repository.getCurrentExercises(sessionId))
+            when(val result = repository.fetchCurrentExercises(sessionId)) {
+                is ResultOf.Success -> _uiState.value = ViewExercisesUiState.Success(result.data)
+                is ResultOf.Error -> _uiState.value = ViewExercisesUiState.Error(result.message)
+            }
         }
     }
 
@@ -46,7 +59,7 @@ class ViewExercisesViewModel @Inject constructor(
             }
 
             is ViewExercisesUiEvent.AddClicked -> {
-                TODO()
+                _bottomSheetState.value = EditExerciseBottomSheetState.Edit()
             }
 
             is ViewExercisesUiEvent.EditClicked -> {
@@ -58,11 +71,26 @@ class ViewExercisesViewModel @Inject constructor(
             }
         }
     }
+
+    fun onBottomSheetEvent(event: EditExerciseBottomSheetEvent) {
+        when (event) {
+            is EditExerciseBottomSheetEvent.DescriptionChanged -> TODO()
+            is EditExerciseBottomSheetEvent.IconChanged -> TODO()
+            is EditExerciseBottomSheetEvent.NameChanged -> TODO()
+            is EditExerciseBottomSheetEvent.Close -> {
+                _bottomSheetState.value = EditExerciseBottomSheetState.Closed
+            }
+            is EditExerciseBottomSheetEvent.Save -> {
+
+            }
+        }
+    }
 }
 
 sealed class ViewExercisesUiState {
     object Loading : ViewExercisesUiState()
     data class Success(val exercises: List<Exercise>) : ViewExercisesUiState()
+    data class Error(val message: String?) : ViewExercisesUiState()
 }
 
 sealed class ViewExercisesUiEffect {
@@ -75,4 +103,22 @@ sealed class ViewExercisesUiEvent {
     object AddClicked : ViewExercisesUiEvent()
     data class EditClicked(val exercise: Exercise) : ViewExercisesUiEvent()
     data class DeleteClicked(val exercise: Exercise) : ViewExercisesUiEvent()
+}
+
+sealed class EditExerciseBottomSheetState {
+    object Closed : EditExerciseBottomSheetState()
+    data class Edit(
+        val id: Int? = null,
+        val name: String = "",
+        val description: String = "",
+        val imageId: Int = R.drawable.ic_empty,
+    ) : EditExerciseBottomSheetState()
+}
+
+sealed class EditExerciseBottomSheetEvent {
+    data class NameChanged(val name: String) : EditExerciseBottomSheetEvent()
+    data class DescriptionChanged(val description: String) : EditExerciseBottomSheetEvent()
+    data class IconChanged(val imageId: Int) : EditExerciseBottomSheetEvent()
+    object Close : EditExerciseBottomSheetEvent()
+    object Save : EditExerciseBottomSheetEvent()
 }

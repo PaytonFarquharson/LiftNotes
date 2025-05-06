@@ -6,6 +6,7 @@ import com.example.liftnotes.R
 import com.example.liftnotes.interfaces.ViewSessionsRepository
 import com.example.liftnotes.model.CompletionDay
 import com.example.liftnotes.model.CurrentSession
+import com.example.liftnotes.model.ResultOf
 import com.example.liftnotes.model.Session
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,8 +34,20 @@ class ViewSessionsViewModel @Inject constructor(
     val bottomSheetState = _bottomSheetState.asStateFlow()
 
     init {
+        fetchCurrentSessions()
+    }
+
+    private fun fetchCurrentSessions() {
         viewModelScope.launch {
-            _uiState.value = ViewSessionsUiState.Success(repository.getCurrentSessions())
+            when (val result = repository.fetchCurrentSessions()) {
+                is ResultOf.Success -> {
+                    _uiState.value = ViewSessionsUiState.Success(result.data)
+                }
+
+                is ResultOf.Error -> {
+                    _uiState.value = ViewSessionsUiState.Error(result.message)
+                }
+            }
         }
     }
 
@@ -125,6 +138,7 @@ class ViewSessionsViewModel @Inject constructor(
 sealed class ViewSessionsUiState {
     object Loading : ViewSessionsUiState()
     data class Success(val sessions: List<CurrentSession>) : ViewSessionsUiState()
+    data class Error(val message: String?) : ViewSessionsUiState()
 }
 
 sealed class ViewSessionsUiEffect {
