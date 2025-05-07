@@ -1,8 +1,8 @@
 package com.example.liftnotes.di
 
-import com.example.liftnotes.implementations.SettingsRepositoryImpl
-import com.example.liftnotes.implementations.ViewExercisesRepositoryImpl
-import com.example.liftnotes.implementations.ViewSessionsRepositoryImpl
+import com.example.liftnotes.implementations.FakeSettingsRepository
+import com.example.liftnotes.implementations.FakeViewExercisesRepository
+import com.example.liftnotes.implementations.FakeViewSessionsRepository
 import com.example.liftnotes.interfaces.SettingsRepository
 import com.example.liftnotes.interfaces.ViewExercisesRepository
 import com.example.liftnotes.interfaces.ViewSessionsRepository
@@ -19,18 +19,18 @@ object TestAppModule {
     @Provides
     @Singleton
     fun provideViewSessionsRepository(): ViewSessionsRepository {
-        return ViewSessionsRepositoryImpl()
+        return com.example.liftnotes.implementations.FakeViewSessionsRepository()
     }
 
     @Provides
     @Singleton
     fun provideViewExercisesRepository(): ViewExercisesRepository {
-        return ViewExercisesRepositoryImpl()
+        return com.example.liftnotes.implementations.FakeViewExercisesRepository()
     }
 
     @Provides
     @Singleton
     fun provideSettingsRepository(): SettingsRepository {
-        return SettingsRepositoryImpl()
+        return com.example.liftnotes.implementations.FakeSettingsRepository()
     }
 }

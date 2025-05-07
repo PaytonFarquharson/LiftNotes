@@ -5,7 +5,13 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="tapBottomSheetSetting_settingsNavigated()">
+      <SelectionState runConfigName="ExerciseValueTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="exerciseValue_displaysIconAndText()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="onClick_dialogShown()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

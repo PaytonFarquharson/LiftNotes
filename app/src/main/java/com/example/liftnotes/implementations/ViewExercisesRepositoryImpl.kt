@@ -8,7 +8,7 @@ import kotlinx.coroutines.delay
 
 class ViewExercisesRepositoryImpl : ViewExercisesRepository {
 
-    override suspend fun fetchCurrentExercises(sessionId: Int): ResultOf<List<Exercise>> {
+    override suspend fun getCurrentExercises(sessionId: Int): ResultOf<List<Exercise>> {
         try {
             delay(1000)
             for (session in testSessionsModel) {

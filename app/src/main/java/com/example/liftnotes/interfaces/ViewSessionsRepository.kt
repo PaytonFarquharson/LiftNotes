@@ -5,5 +5,5 @@ import com.example.liftnotes.model.ResultOf
 
 interface ViewSessionsRepository {
 
-    suspend fun fetchCurrentSessions(): ResultOf<List<CurrentSession>>
+    suspend fun getCurrentSessions(): ResultOf<List<CurrentSession>>
 }

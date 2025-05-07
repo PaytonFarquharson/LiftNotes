@@ -41,7 +41,7 @@ class ViewExercisesViewModel @Inject constructor(
 
     private fun fetchCurrentExercises() {
         viewModelScope.launch {
-            when(val result = repository.fetchCurrentExercises(sessionId)) {
+            when(val result = repository.getCurrentExercises(sessionId)) {
                 is ResultOf.Success -> _uiState.value = ViewExercisesUiState.Success(result.data)
                 is ResultOf.Error -> _uiState.value = ViewExercisesUiState.Error(result.message)
             }

@@ -3,6 +3,7 @@ package com.example.liftnotes.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.liftnotes.interfaces.SettingsRepository
+import com.example.liftnotes.model.ResultOf
 import com.example.liftnotes.model.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +20,15 @@ class SettingsViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
+        fetchSettings()
+    }
+
+    private fun fetchSettings() {
         viewModelScope.launch {
-            _uiState.value = SettingsUiState.Success(repository.getSettings())
+            when (val result = repository.getSettings()) {
+                is ResultOf.Success -> _uiState.value = SettingsUiState.Success(result.data)
+                is ResultOf.Error -> TODO()
+            }
         }
     }
 

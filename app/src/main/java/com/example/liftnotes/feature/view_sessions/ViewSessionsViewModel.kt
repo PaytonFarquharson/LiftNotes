@@ -39,7 +39,7 @@ class ViewSessionsViewModel @Inject constructor(
 
     private fun fetchCurrentSessions() {
         viewModelScope.launch {
-            when (val result = repository.fetchCurrentSessions()) {
+            when (val result = repository.getCurrentSessions()) {
                 is ResultOf.Success -> {
                     _uiState.value = ViewSessionsUiState.Success(result.data)
                 }

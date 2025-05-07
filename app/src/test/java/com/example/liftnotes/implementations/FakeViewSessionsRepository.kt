@@ -4,16 +4,9 @@ import com.example.liftnotes.interfaces.ViewSessionsRepository
 import com.example.liftnotes.model.CurrentSession
 import com.example.liftnotes.model.ResultOf
 import com.example.liftnotes.test.testCurrentSessionsModel
-import kotlinx.coroutines.delay
 
-class ViewSessionsRepositoryImpl : ViewSessionsRepository {
-
+class FakeViewSessionsRepository: ViewSessionsRepository {
     override suspend fun getCurrentSessions(): ResultOf<List<CurrentSession>> {
-        try {
-            delay(1000)
-            return ResultOf.Success(testCurrentSessionsModel)
-        } catch(e: Exception) {
-            return ResultOf.Error(e.message)
-        }
+        return ResultOf.Success(testCurrentSessionsModel)
     }
 }

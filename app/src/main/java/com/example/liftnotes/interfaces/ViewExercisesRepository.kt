@@ -5,5 +5,5 @@ import com.example.liftnotes.model.ResultOf
 
 interface ViewExercisesRepository {
 
-    suspend fun fetchCurrentExercises(sessionId: Int) : ResultOf<List<Exercise>>
+    suspend fun getCurrentExercises(sessionId: Int) : ResultOf<List<Exercise>>
 }
