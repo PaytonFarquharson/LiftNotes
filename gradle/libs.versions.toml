@@ -21,6 +21,7 @@ navigationCompose = "2.9.0-alpha07"
 navigationFragmentKtx = "2.9.0-alpha07"
 navigationUiKtx = "2.9.0-alpha07"
 reorderable = "2.4.3"
+roomVersion = "2.7.1"
 runtimeAndroid = "1.8.0-beta03"
 version-catalog-update = "0.8.5"
 uiTestJunit4Android = "1.8.0"
@@ -43,12 +44,16 @@ androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-view
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtx" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
 androidx-runtime-android = { module = "androidx.compose.runtime:runtime-android", version.ref = "runtimeAndroid" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltVersion" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltVersion" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltVersion" }
 hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 junit4 = { module = "junit:junit", version.ref = "junit4" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 material = { module = "com.google.android.material:material", version.ref = "material" }

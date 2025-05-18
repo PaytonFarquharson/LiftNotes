@@ -3,53 +3,40 @@ package com.example.liftnotes.feature.view_sessions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.liftnotes.R
-import com.example.liftnotes.interfaces.ViewSessionsRepository
-import com.example.liftnotes.model.CompletionDay
-import com.example.liftnotes.model.CurrentSession
-import com.example.liftnotes.model.ResultOf
-import com.example.liftnotes.model.Session
+import com.example.liftnotes.repository.model.CompletionDay
+import com.example.liftnotes.repository.model.CurrentSession
+import com.example.liftnotes.repository.model.DataResult
+import com.example.liftnotes.database.model.Session
+import com.example.liftnotes.repository.interfaces.WorkoutRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import javax.inject.Inject
 
 @HiltViewModel
 class ViewSessionsViewModel @Inject constructor(
-    private val repository: ViewSessionsRepository
+    repository: WorkoutRepository
 ) : ViewModel() {
 
-    private val _uiState: MutableStateFlow<ViewSessionsUiState> =
-        MutableStateFlow(ViewSessionsUiState.Loading)
-    val uiState = _uiState.asStateFlow()
+    val uiState = repository.getCurrentSessions()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            DataResult.Loading
+        )
 
-    private val _effect = MutableSharedFlow<ViewSessionsUiEffect>()
+    private val _effect = MutableSharedFlow<ViewSessionsUiEffect>(extraBufferCapacity = 1)
     val effect = _effect.asSharedFlow()
 
     private val _bottomSheetState: MutableStateFlow<EditSessionBottomSheetState> =
         MutableStateFlow(EditSessionBottomSheetState.Closed)
     val bottomSheetState = _bottomSheetState.asStateFlow()
-
-    init {
-        fetchCurrentSessions()
-    }
-
-    private fun fetchCurrentSessions() {
-        viewModelScope.launch {
-            when (val result = repository.getCurrentSessions()) {
-                is ResultOf.Success -> {
-                    _uiState.value = ViewSessionsUiState.Success(result.data)
-                }
-
-                is ResultOf.Error -> {
-                    _uiState.value = ViewSessionsUiState.Error(result.message)
-                }
-            }
-        }
-    }
 
     fun onUiEvent(event: ViewSessionsUiEvent) {
         when (event) {
@@ -133,12 +120,6 @@ class ViewSessionsViewModel @Inject constructor(
             }
         }
     }
-}
-
-sealed class ViewSessionsUiState {
-    object Loading : ViewSessionsUiState()
-    data class Success(val sessions: List<CurrentSession>) : ViewSessionsUiState()
-    data class Error(val message: String?) : ViewSessionsUiState()
 }
 
 sealed class ViewSessionsUiEffect {

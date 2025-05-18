@@ -29,8 +29,8 @@ import com.example.liftnotes.feature.BottomNavItem.History
 import com.example.liftnotes.feature.BottomNavItem.Library
 import com.example.liftnotes.feature.BottomNavItem.Settings
 import com.example.liftnotes.feature.BottomNavItem.Workout
-import com.example.liftnotes.ui.navigation.RootNavGraph
-import com.example.liftnotes.ui.navigation.RootNavRoute
+import com.example.liftnotes.navigation.RootNavGraph
+import com.example.liftnotes.navigation.RootNavRoute
 
 @Composable
 fun MainScreen(navController: NavHostController = rememberNavController()) {

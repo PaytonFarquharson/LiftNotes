@@ -4,49 +4,42 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.liftnotes.R
-import com.example.liftnotes.interfaces.ViewExercisesRepository
-import com.example.liftnotes.model.Exercise
-import com.example.liftnotes.model.ResultOf
-import com.example.liftnotes.ui.navigation.WorkoutRoute
+import com.example.liftnotes.database.model.Exercise
+import com.example.liftnotes.repository.model.DataResult
+import com.example.liftnotes.repository.interfaces.WorkoutRepository
+import com.example.liftnotes.navigation.WorkoutRoute
+import com.example.liftnotes.repository.model.ViewExercisesScreenData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ViewExercisesViewModel @Inject constructor(
-    private val repository: ViewExercisesRepository,
+    repository: WorkoutRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val sessionId: Int = savedStateHandle[WorkoutRoute.ARG_EXERCISE_ID] ?: -1
 
-    private val _uiState: MutableStateFlow<ViewExercisesUiState> =
-        MutableStateFlow(ViewExercisesUiState.Loading)
-    val uiState = _uiState.asStateFlow()
+    val uiState = repository.getSessionExercises(sessionId)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            DataResult.Loading
+        )
 
-    private val _effect = MutableSharedFlow<ViewExercisesUiEffect>()
+    private val _effect = MutableSharedFlow<ViewExercisesUiEffect>(extraBufferCapacity = 1)
     val effect = _effect.asSharedFlow()
 
     private val _bottomSheetState: MutableStateFlow<EditExerciseBottomSheetState> =
         MutableStateFlow(EditExerciseBottomSheetState.Closed)
     val bottomSheetState = _bottomSheetState.asStateFlow()
-
-    init {
-        fetchCurrentExercises()
-    }
-
-    private fun fetchCurrentExercises() {
-        viewModelScope.launch {
-            when(val result = repository.getCurrentExercises(sessionId)) {
-                is ResultOf.Success -> _uiState.value = ViewExercisesUiState.Success(result.data)
-                is ResultOf.Error -> _uiState.value = ViewExercisesUiState.Error(result.message)
-            }
-        }
-    }
 
     fun onUiEvent(event: ViewExercisesUiEvent) {
         when (event) {
@@ -85,12 +78,6 @@ class ViewExercisesViewModel @Inject constructor(
             }
         }
     }
-}
-
-sealed class ViewExercisesUiState {
-    object Loading : ViewExercisesUiState()
-    data class Success(val exercises: List<Exercise>) : ViewExercisesUiState()
-    data class Error(val message: String?) : ViewExercisesUiState()
 }
 
 sealed class ViewExercisesUiEffect {

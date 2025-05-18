@@ -1,12 +1,11 @@
 package com.example.liftnotes.implementations
 
-import com.example.liftnotes.interfaces.ViewExercisesRepository
-import com.example.liftnotes.model.Exercise
-import com.example.liftnotes.model.ResultOf
-import com.example.liftnotes.test.testExercisesModel
+import com.example.liftnotes.database.model.Exercise
+import com.example.liftnotes.repository.model.DataResult
 
-class FakeViewExercisesRepository: ViewExercisesRepository {
-    override suspend fun getCurrentExercises(sessionId: Int): ResultOf<List<Exercise>> {
-        return ResultOf.Success(testExercisesModel)
+class FakeViewExercisesRepository(private val result: DataResult<List<Exercise>>):
+    ViewExercisesRepository {
+    override suspend fun getCurrentExercises(sessionId: Int): DataResult<List<Exercise>> {
+        return result
     }
 }

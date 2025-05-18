@@ -11,11 +11,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import com.example.liftnotes.repository.model.DataResult
+import com.example.liftnotes.database.model.Settings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    uiState: SettingsViewModel.SettingsUiState
+    uiState: DataResult<Settings>
 ) {
     Scaffold(
         topBar = {
@@ -37,7 +39,7 @@ fun SettingsScreen(
 
 @Composable
 private fun Content(
-    uiState: SettingsViewModel.SettingsUiState,
+    uiState: DataResult<Settings>,
     innerPadding: PaddingValues
 ) {
 

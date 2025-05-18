@@ -13,9 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.liftnotes.ui.components.DaySelector
-import com.example.liftnotes.ui.components.FormButtons
-import com.example.liftnotes.ui.components.IconPicker
+import com.example.liftnotes.component.DaySelector
+import com.example.liftnotes.component.FormButtons
+import com.example.liftnotes.component.IconPicker
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

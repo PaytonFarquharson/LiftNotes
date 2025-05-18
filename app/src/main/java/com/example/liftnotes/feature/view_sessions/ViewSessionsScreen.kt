@@ -24,16 +24,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.liftnotes.model.CurrentSession
+import com.example.liftnotes.repository.model.CurrentSession
 import com.example.liftnotes.test.testCurrentSessionsModel
-import com.example.liftnotes.ui.components.CardIcon
-import com.example.liftnotes.ui.components.CardNameDescription
-import com.example.liftnotes.ui.components.CompletionTracker
-import com.example.liftnotes.ui.components.FloatingAddButton
-import com.example.liftnotes.ui.components.ReorderHapticFeedbackType
-import com.example.liftnotes.ui.components.ReorderableCard
-import com.example.liftnotes.ui.components.rememberReorderHapticFeedback
-import com.example.liftnotes.ui.theme.LiftNotesTheme
+import com.example.liftnotes.component.CardIcon
+import com.example.liftnotes.component.CardNameDescription
+import com.example.liftnotes.component.CompletionTracker
+import com.example.liftnotes.component.FloatingAddButton
+import com.example.liftnotes.component.ReorderHapticFeedbackType
+import com.example.liftnotes.component.ReorderableCard
+import com.example.liftnotes.component.rememberReorderHapticFeedback
+import com.example.liftnotes.theme.LiftNotesTheme
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 

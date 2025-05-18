@@ -1,15 +1,13 @@
 package com.example.liftnotes.com.example.liftnotes.ui.components
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.liftnotes.R
-import com.example.liftnotes.ui.components.IconPicker
+import com.example.liftnotes.component.IconPicker
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

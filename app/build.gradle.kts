@@ -66,6 +66,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    ksp(libs.androidx.room.compiler)
+    annotationProcessor(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material3)
@@ -75,7 +79,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
-
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.datetime)
     implementation(libs.reorderable)
 }

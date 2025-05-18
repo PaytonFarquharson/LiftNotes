@@ -1,12 +1,12 @@
 package com.example.liftnotes.implementations
 
-import com.example.liftnotes.interfaces.ViewSessionsRepository
-import com.example.liftnotes.model.CurrentSession
-import com.example.liftnotes.model.ResultOf
-import com.example.liftnotes.test.testCurrentSessionsModel
+import com.example.liftnotes.repository.model.CurrentSession
+import com.example.liftnotes.repository.model.DataResult
 
-class FakeViewSessionsRepository: ViewSessionsRepository {
-    override suspend fun getCurrentSessions(): ResultOf<List<CurrentSession>> {
-        return ResultOf.Success(testCurrentSessionsModel)
+class FakeViewSessionsRepository(
+    private val result: DataResult<List<CurrentSession>>
+): ViewSessionsRepository {
+    override suspend fun getCurrentSessions(): DataResult<List<CurrentSession>> {
+        return result
     }
 }

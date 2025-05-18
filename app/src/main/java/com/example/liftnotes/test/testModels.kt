@@ -1,12 +1,12 @@
 package com.example.liftnotes.test
 
 import com.example.liftnotes.R
-import com.example.liftnotes.model.CompletionDay
-import com.example.liftnotes.model.CurrentSession
-import com.example.liftnotes.model.Exercise
-import com.example.liftnotes.model.Range
-import com.example.liftnotes.model.Session
-import com.example.liftnotes.model.Settings
+import com.example.liftnotes.repository.model.CompletionDay
+import com.example.liftnotes.repository.model.CurrentSession
+import com.example.liftnotes.database.model.Exercise
+import com.example.liftnotes.database.model.Range
+import com.example.liftnotes.database.model.Session
+import com.example.liftnotes.database.model.Settings
 import java.time.DayOfWeek
 
 val testExercisesModel: List<Exercise> = listOf(
