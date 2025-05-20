@@ -8,7 +8,6 @@ import com.example.liftnotes.database.model.Exercise
 import com.example.liftnotes.repository.model.DataResult
 import com.example.liftnotes.repository.interfaces.WorkoutRepository
 import com.example.liftnotes.navigation.WorkoutRoute
-import com.example.liftnotes.repository.model.ViewExercisesScreenData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ViewExercisesViewModel @Inject constructor(
-    repository: WorkoutRepository,
+    private val repository: WorkoutRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -48,7 +47,10 @@ class ViewExercisesViewModel @Inject constructor(
             }
 
             is ViewExercisesUiEvent.CurrentExercisesReordered -> {
-                _uiState.value = ViewExercisesUiState.Success(event.exercises)
+                (uiState.value as? DataResult.Success)?.let { state ->
+                    val exerciseIds = event.exercises.map { it.id }
+                    viewModelScope.launch { repository.updateSession(state.data.session.copy(exerciseIds = exerciseIds)) }
+                }
             }
 
             is ViewExercisesUiEvent.AddClicked -> {

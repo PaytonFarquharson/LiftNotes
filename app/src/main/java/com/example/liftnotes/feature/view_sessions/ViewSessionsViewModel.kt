@@ -3,11 +3,11 @@ package com.example.liftnotes.feature.view_sessions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.liftnotes.R
+import com.example.liftnotes.database.model.Session
+import com.example.liftnotes.repository.interfaces.WorkoutRepository
 import com.example.liftnotes.repository.model.CompletionDay
 import com.example.liftnotes.repository.model.CurrentSession
 import com.example.liftnotes.repository.model.DataResult
-import com.example.liftnotes.database.model.Session
-import com.example.liftnotes.repository.interfaces.WorkoutRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ViewSessionsViewModel @Inject constructor(
-    repository: WorkoutRepository
+    private val repository: WorkoutRepository
 ) : ViewModel() {
 
     val uiState = repository.getCurrentSessions()
@@ -45,7 +45,8 @@ class ViewSessionsViewModel @Inject constructor(
             }
 
             is ViewSessionsUiEvent.CurrentSessionsReordered -> {
-                _uiState.value = ViewSessionsUiState.Success(event.currentSessions)
+                val idList = event.currentSessions.map { it.session.id }
+                viewModelScope.launch { repository.updateCurrentSessionIds(idList) }
             }
 
             is ViewSessionsUiEvent.AddClicked -> {
@@ -116,7 +117,29 @@ class ViewSessionsViewModel @Inject constructor(
             }
 
             is EditSessionBottomSheetEvent.Save -> {
+                (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let { state ->
+                    val daysOfWeek = state.completionDays
+                        .filter { it.isHighlighted }
+                        .map { it.dayOfWeek }
+                    updateSession(
+                        Session(
+                            name = state.name,
+                            description = state.description,
+                            imageId = state.imageId,
+                            daysOfWeek = daysOfWeek
+                        )
+                    )
+                }
+            }
+        }
+    }
 
+    private fun updateSession(session: Session) {
+        (uiState.value as? DataResult.Success)?.let { dataResult ->
+            viewModelScope.launch {
+                val sessionId = repository.updateSession(session)
+                val idList = dataResult.data.map { it.session.id } + sessionId
+                repository.updateCurrentSessionIds(idList)
             }
         }
     }

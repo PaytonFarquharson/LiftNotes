@@ -33,10 +33,10 @@ val testExercisesModel: List<Exercise> = listOf(
 )
 
 val testSessionsModel: List<Session> = listOf(
-    Session(1, "Upper Day 1", "Cherry St YMCA", R.drawable.ic_pull_up, listOf(DayOfWeek.TUESDAY), testExercisesModel.subList(0,6)),
-    Session(2, "Upper Day 2", "Central YMCA", R.drawable.ic_bench_pressing, listOf(DayOfWeek.SATURDAY, DayOfWeek.TUESDAY, DayOfWeek.MONDAY, DayOfWeek.FRIDAY, DayOfWeek.THURSDAY, DayOfWeek.SUNDAY, DayOfWeek.WEDNESDAY), testExercisesModel.subList(6,13)),
-    Session(3, "Lower Day 1", "Cherry St YMCA", R.drawable.ic_stretch5, listOf(DayOfWeek.FRIDAY), testExercisesModel.subList(13,16)),
-    Session(4, "Lower Day 2", "Cherry St YMCA", R.drawable.ic_stretch5, listOf(DayOfWeek.TUESDAY, DayOfWeek.MONDAY, DayOfWeek.FRIDAY), listOf(testExercisesModel[13],testExercisesModel[17],testExercisesModel[16],testExercisesModel[15])),
+    Session(1, "Upper Day 1", "Cherry St YMCA", R.drawable.ic_pull_up, listOf(DayOfWeek.TUESDAY), listOf(1, 2, 3, 4, 5, 6)),
+    Session(2, "Upper Day 2", "Central YMCA", R.drawable.ic_bench_pressing, listOf(DayOfWeek.SATURDAY, DayOfWeek.TUESDAY, DayOfWeek.MONDAY, DayOfWeek.FRIDAY, DayOfWeek.THURSDAY, DayOfWeek.SUNDAY, DayOfWeek.WEDNESDAY), (6..13).toList()),
+    Session(3, "Lower Day 1", "Cherry St YMCA", R.drawable.ic_stretch5, listOf(DayOfWeek.FRIDAY), listOf(13, 14, 15, 16)),
+    Session(4, "Lower Day 2", "Cherry St YMCA", R.drawable.ic_stretch5, listOf(DayOfWeek.TUESDAY, DayOfWeek.MONDAY, DayOfWeek.FRIDAY), listOf(13,17,16,15)),
 )
 
 val testCurrentSessionsModel: List<CurrentSession> = listOf(
@@ -45,5 +45,3 @@ val testCurrentSessionsModel: List<CurrentSession> = listOf(
     CurrentSession(testSessionsModel[2], listOf(CompletionDay(DayOfWeek.FRIDAY))),
     CurrentSession(testSessionsModel[3], listOf(CompletionDay(DayOfWeek.MONDAY), CompletionDay(DayOfWeek.TUESDAY), CompletionDay(DayOfWeek.FRIDAY)))
 )
-
-val testSettings = Settings(true)

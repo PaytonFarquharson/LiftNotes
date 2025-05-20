@@ -21,4 +21,8 @@ class SettingsRepositoryImpl @Inject constructor(
         }
         .onStart { emit(DataResult.Loading) }
         .catch { e -> emit(DataResult.Error(e.message)) }
+
+    override suspend fun updateSettings() {
+        TODO("Not yet implemented")
+    }
 }

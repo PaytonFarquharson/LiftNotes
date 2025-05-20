@@ -2,6 +2,7 @@ package com.example.liftnotes.feature.view_exercises
 
 import androidx.lifecycle.SavedStateHandle
 import com.example.liftnotes.implementations.FakeViewExercisesRepository
+import com.example.liftnotes.repository.interfaces.WorkoutRepository
 import com.example.liftnotes.repository.model.DataResult
 import com.example.liftnotes.test.testExercisesModel
 import junit.framework.TestCase.assertEquals
@@ -23,7 +24,7 @@ class ViewExercisesViewModelTest {
     val dispatcher = StandardTestDispatcher()
     val savedStateHandle = SavedStateHandle()
 
-    lateinit var repository: ViewExercisesRepository
+    lateinit var repository: WorkoutRepository
     lateinit var viewModel: ViewExercisesViewModel
 
     @Before

@@ -27,8 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.liftnotes.database.model.Exercise
-import com.example.liftnotes.test.testExercisesModel
 import com.example.liftnotes.component.CardIcon
 import com.example.liftnotes.component.CardNameDescription
 import com.example.liftnotes.component.ExerciseValues
@@ -36,7 +34,10 @@ import com.example.liftnotes.component.FloatingAddButton
 import com.example.liftnotes.component.ReorderHapticFeedbackType
 import com.example.liftnotes.component.ReorderableCard
 import com.example.liftnotes.component.rememberReorderHapticFeedback
+import com.example.liftnotes.repository.model.DataResult
 import com.example.liftnotes.repository.model.ViewExercisesScreenData
+import com.example.liftnotes.test.testExercisesModel
+import com.example.liftnotes.test.testSessionsModel
 import com.example.liftnotes.theme.LiftNotesTheme
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -44,7 +45,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewExercisesScreen(
-    uiState: Result<ViewExercisesScreenData>,
+    uiState: DataResult<ViewExercisesScreenData>,
     onEvent: (ViewExercisesUiEvent) -> Unit,
     bottomSheetState: EditExerciseBottomSheetState,
     onBottomSheetEvent: (EditExerciseBottomSheetEvent) -> Unit
@@ -76,13 +77,13 @@ fun ViewExercisesScreen(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
         when (uiState) {
-            ViewExercisesUiState.Loading -> Loading(innerPadding)
-            is ViewExercisesUiState.Success -> Success(
+            DataResult.Loading -> Loading(innerPadding)
+            is DataResult.Success -> Success(
                 onEvent,
-                uiState.exercises,
+                uiState.data,
                 innerPadding
             )
-            is ViewExercisesUiState.Error -> Error(innerPadding)
+            is DataResult.Error -> Error(innerPadding)
         }
     }
 }
@@ -107,13 +108,13 @@ private fun Error(innerPadding: PaddingValues) {
 @Composable
 private fun Success(
     onEvent: (ViewExercisesUiEvent) -> Unit,
-    list: List<Exercise>,
+    data: ViewExercisesScreenData,
     innerPadding: PaddingValues
 ) {
     val haptic = rememberReorderHapticFeedback()
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        val reorderedList = list.toMutableList().apply {
+        val reorderedList = data.exercises.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
         onEvent(ViewExercisesUiEvent.CurrentExercisesReordered(reorderedList))
@@ -127,7 +128,7 @@ private fun Success(
         state = lazyListState,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        itemsIndexed(list, key = { _, exercise -> exercise.id }) { _, exercise ->
+        itemsIndexed(data.exercises, key = { _, exercise -> exercise.id }) { _, exercise ->
             ReorderableItem(reorderableLazyListState, key = exercise.id) { isDragging ->
                 ReorderableCard({ /*TODO: onClick*/ }) {
                     Row(
@@ -171,7 +172,7 @@ private fun Success(
 fun ViewExercisesScreenPreview() {
     LiftNotesTheme {
         ViewExercisesScreen(
-            uiState = ViewExercisesUiState.Success(testExercisesModel),
+            uiState = DataResult.Success(ViewExercisesScreenData(testSessionsModel[0], testExercisesModel)),
             onEvent = {},
             bottomSheetState = EditExerciseBottomSheetState.Closed,
             onBottomSheetEvent = {}

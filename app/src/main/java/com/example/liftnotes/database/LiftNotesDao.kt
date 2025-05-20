@@ -16,27 +16,27 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface LiftNotesDao {
     @Insert
-    fun insertHistoricalSession(session: HistoricalSession)
+    suspend fun insertHistoricalSession(session: HistoricalSession)
     @Insert
-    fun insertHistoricalExercise(exercise: HistoricalExercise)
+    suspend fun insertHistoricalExercise(exercise: HistoricalExercise)
 
     @Upsert
-    fun upsertSetting(setting: Settings)
+    suspend fun upsertSetting(setting: Settings)
     @Upsert
-    fun upsertCurrentSessions(current: CurrentSessionIds)
+    suspend fun upsertCurrentSessions(current: CurrentSessionIds)
     @Upsert
-    fun upsertSession(session: Session)
+    suspend fun upsertSession(session: Session): Long
     @Upsert
-    fun upsertExercise(exercise: Exercise)
+    suspend fun upsertExercise(exercise: Exercise): Long
 
     @Delete
-    fun deleteSession(session: Session)
+    suspend fun deleteSession(session: Session)
     @Delete
-    fun deleteExercise(exercise: Exercise)
+    suspend fun deleteExercise(exercise: Exercise)
     @Delete
-    fun deleteHistoricalSession(session: HistoricalSession)
+    suspend fun deleteHistoricalSession(session: HistoricalSession)
     @Delete
-    fun deleteHistoricalExercise(exercise: HistoricalExercise)
+    suspend fun deleteHistoricalExercise(exercise: HistoricalExercise)
 
     @Query("SELECT * FROM settings WHERE id = 0") fun getSettings(): Flow<Settings?>
     @Query("SELECT * FROM currentSessions WHERE id = 0") fun getCurrentSessionIds(): Flow<CurrentSessionIds?>

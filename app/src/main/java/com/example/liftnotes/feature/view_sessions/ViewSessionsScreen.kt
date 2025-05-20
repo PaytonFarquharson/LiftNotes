@@ -33,6 +33,7 @@ import com.example.liftnotes.component.FloatingAddButton
 import com.example.liftnotes.component.ReorderHapticFeedbackType
 import com.example.liftnotes.component.ReorderableCard
 import com.example.liftnotes.component.rememberReorderHapticFeedback
+import com.example.liftnotes.repository.model.DataResult
 import com.example.liftnotes.theme.LiftNotesTheme
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -40,7 +41,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewSessionsScreen(
-    uiState: ViewSessionsUiState,
+    uiState: DataResult<List<CurrentSession>>,
     onEvent: (ViewSessionsUiEvent) -> Unit,
     bottomSheetState: EditSessionBottomSheetState,
     onBottomSheetEvent: (EditSessionBottomSheetEvent) -> Unit
@@ -64,13 +65,13 @@ fun ViewSessionsScreen(
     ) { innerPadding ->
         Box {
             when (uiState) {
-                ViewSessionsUiState.Loading -> Loading(innerPadding)
-                is ViewSessionsUiState.Success -> Success(
+                DataResult.Loading -> Loading(innerPadding)
+                is DataResult.Success -> Success(
                     onEvent,
-                    uiState.sessions,
+                    uiState.data,
                     innerPadding
                 )
-                is ViewSessionsUiState.Error -> Error(innerPadding)
+                is DataResult.Error -> Error(innerPadding)
             }
             EditSessionBottomSheet(
                 bottomSheetState = bottomSheetState,
@@ -170,7 +171,7 @@ private fun Success(
 fun ViewSessionsScreenPreview() {
     LiftNotesTheme {
         ViewSessionsScreen(
-            uiState = ViewSessionsUiState.Success(testCurrentSessionsModel),
+            uiState = DataResult.Success(testCurrentSessionsModel),
             onEvent = {},
             bottomSheetState = EditSessionBottomSheetState.Closed,
             onBottomSheetEvent = {}
