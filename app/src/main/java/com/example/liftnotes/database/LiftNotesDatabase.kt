@@ -1,6 +1,7 @@
 package com.example.liftnotes.database
 
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.liftnotes.database.model.CurrentSessionIds
 import com.example.liftnotes.database.model.Exercise
 import com.example.liftnotes.database.model.HistoricalExercise
@@ -9,8 +10,11 @@ import com.example.liftnotes.database.model.Range
 import com.example.liftnotes.database.model.Rating
 import com.example.liftnotes.database.model.Session
 import com.example.liftnotes.database.model.Settings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import javax.inject.Provider
 
 class Converters {
     @TypeConverter
@@ -60,4 +64,20 @@ class Converters {
 @TypeConverters(Converters::class)
 abstract class LiftNotesDatabase : RoomDatabase() {
     abstract fun liftNotesDao(): LiftNotesDao
+
+    class Callback(
+        private val daoProvider: Provider<LiftNotesDao>,
+        private val scope: CoroutineScope
+    ): RoomDatabase.Callback() {
+
+        override fun onCreate(db: SupportSQLiteDatabase) {
+            super.onCreate(db)
+
+            scope.launch {
+                val dao = daoProvider.get()
+                dao.upsertSetting(Settings())
+                dao.upsertCurrentSessions(CurrentSessionIds())
+            }
+        }
+    }
 }

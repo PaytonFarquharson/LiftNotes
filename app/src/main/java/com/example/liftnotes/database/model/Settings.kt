@@ -6,5 +6,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "settings")
 data class Settings(
     @PrimaryKey val id: Int = 0,
-    val settings: String
+    val settings: String = ""
 )

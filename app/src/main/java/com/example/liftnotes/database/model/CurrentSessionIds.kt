@@ -6,5 +6,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "currentSessions")
 data class CurrentSessionIds(
     @PrimaryKey val id: Int = 0,
-    val currentSessionIdList: List<Int>
+    val currentSessionIdList: List<Int> = emptyList()
 )
