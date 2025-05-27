@@ -5,9 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.liftnotes.R
 import com.example.liftnotes.database.model.Exercise
-import com.example.liftnotes.repository.model.DataResult
-import com.example.liftnotes.repository.interfaces.WorkoutRepository
+import com.example.liftnotes.database.model.Range
 import com.example.liftnotes.navigation.WorkoutRoute
+import com.example.liftnotes.repository.interfaces.WorkoutRepository
+import com.example.liftnotes.repository.model.DataResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +50,13 @@ class ViewExercisesViewModel @Inject constructor(
             is ViewExercisesUiEvent.CurrentExercisesReordered -> {
                 (uiState.value as? DataResult.Success)?.let { state ->
                     val exerciseIds = event.exercises.map { it.id }
-                    viewModelScope.launch { repository.updateSession(state.data.session.copy(exerciseIds = exerciseIds)) }
+                    viewModelScope.launch {
+                        repository.updateSession(
+                            state.data.session.copy(
+                                exerciseIds = exerciseIds
+                            )
+                        )
+                    }
                 }
             }
 
@@ -68,14 +75,98 @@ class ViewExercisesViewModel @Inject constructor(
     }
 
     fun onBottomSheetEvent(event: EditExerciseBottomSheetEvent) {
-        when (event) {
-            is EditExerciseBottomSheetEvent.DescriptionChanged -> TODO()
-            is EditExerciseBottomSheetEvent.IconChanged -> TODO()
-            is EditExerciseBottomSheetEvent.NameChanged -> TODO()
-            is EditExerciseBottomSheetEvent.Close -> {
-                _bottomSheetState.value = EditExerciseBottomSheetState.Closed
+        (_bottomSheetState.value as? EditExerciseBottomSheetState.Edit)?.let { state ->
+            when (event) {
+                is EditExerciseBottomSheetEvent.NameChanged -> {
+                    _bottomSheetState.value = state.copy(name = event.name, nameError = null)
+                }
+
+                is EditExerciseBottomSheetEvent.DescriptionChanged -> {
+                    _bottomSheetState.value = state.copy(description = event.description)
+                }
+
+                is EditExerciseBottomSheetEvent.IconChanged -> {
+                    _bottomSheetState.value = state.copy(imageId = event.imageId)
+                }
+
+                is EditExerciseBottomSheetEvent.MinRepsChanged -> {
+                    val minReps = event.reps ?: 0
+                    _bottomSheetState.value = if (minReps <= 0 && state.reps?.max == null) {
+                        state.copy(reps = null, repsError = null)
+                    } else {
+                        state.copy(
+                            reps = state.reps?.copy(min = minReps) ?: Range(min = minReps, max = null),
+                            repsError = null
+                        )
+                    }
+                }
+
+                is EditExerciseBottomSheetEvent.MaxRepsChanged -> {
+                    _bottomSheetState.value =
+                        state.copy(
+                            reps = state.reps?.copy(max = event.reps) ?: Range(min = 0, max = event.reps),
+                            repsError = null
+                        )
+                }
+                is EditExerciseBottomSheetEvent.SetsChanged -> {
+                    _bottomSheetState.value = state.copy(sets = event.sets)
+                }
+                is EditExerciseBottomSheetEvent.TimeChanged -> {
+                    _bottomSheetState.value = state.copy(time = event.time)
+                }
+                is EditExerciseBottomSheetEvent.WeightChanged -> {
+                    _bottomSheetState.value = state.copy(weight = event.weight)
+                }
+                is EditExerciseBottomSheetEvent.Close -> {
+                    _bottomSheetState.value = EditExerciseBottomSheetState.Closed
+                }
+
+                is EditExerciseBottomSheetEvent.Save -> {
+                    validateAndUpdateExercise(
+                        Exercise(
+                            name = state.name,
+                            description = state.description,
+                            imageId = state.imageId,
+                            weight = state.weight,
+                            sets = state.sets,
+                            reps = state.reps,
+                            time = state.time
+                        )
+                    )
+                }
             }
-            is EditExerciseBottomSheetEvent.Save -> {
+        }
+    }
+
+    private fun validateAndUpdateExercise(exercise: Exercise) {
+        var isValid = true
+        if (exercise.name.isBlank()) {
+            (_bottomSheetState.value as? EditExerciseBottomSheetState.Edit)?.let { state ->
+                _bottomSheetState.value = state.copy(
+                    nameError = "Name cannot be empty"
+                )
+            }
+            isValid = false
+        }
+        exercise.reps?.let {
+            if (it.min < 0 || (it.max != null && it.max <= it.min)) {
+                (_bottomSheetState.value as? EditExerciseBottomSheetState.Edit)?.let { state ->
+                    _bottomSheetState.value = state.copy(
+                        repsError = "Invalid rep range"
+                    )
+                }
+            }
+            isValid = false
+        }
+
+        if (!isValid) return
+        updateExercise(exercise)
+        _bottomSheetState.value = EditExerciseBottomSheetState.Closed
+    }
+
+    private fun updateExercise(exercise: Exercise) {
+        (uiState.value as? DataResult.Success)?.let { dataResult ->
+            viewModelScope.launch {
 
             }
         }
@@ -99,8 +190,14 @@ sealed class EditExerciseBottomSheetState {
     data class Edit(
         val id: Int? = null,
         val name: String = "",
+        val nameError: String? = null,
         val description: String = "",
         val imageId: Int = R.drawable.ic_empty,
+        val weight: Float? = null,
+        val sets: Int? = null,
+        val reps: Range? = null,
+        val repsError: String? = null,
+        val time: Int? = null,
     ) : EditExerciseBottomSheetState()
 }
 
@@ -108,6 +205,11 @@ sealed class EditExerciseBottomSheetEvent {
     data class NameChanged(val name: String) : EditExerciseBottomSheetEvent()
     data class DescriptionChanged(val description: String) : EditExerciseBottomSheetEvent()
     data class IconChanged(val imageId: Int) : EditExerciseBottomSheetEvent()
+    data class WeightChanged(val weight: Float?) : EditExerciseBottomSheetEvent()
+    data class SetsChanged(val sets: Int?) : EditExerciseBottomSheetEvent()
+    data class MinRepsChanged(val reps: Int?) : EditExerciseBottomSheetEvent()
+    data class MaxRepsChanged(val reps: Int?) : EditExerciseBottomSheetEvent()
+    data class TimeChanged(val time: Int?) : EditExerciseBottomSheetEvent()
     object Close : EditExerciseBottomSheetEvent()
     object Save : EditExerciseBottomSheetEvent()
 }

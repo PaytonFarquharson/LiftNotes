@@ -1,12 +1,11 @@
-package com.example.liftnotes.feature.view_sessions
+package com.example.liftnotes.feature.view_exercises
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -19,34 +18,30 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import com.example.liftnotes.R
-import com.example.liftnotes.component.DaySelector
 import com.example.liftnotes.component.FormButtons
 import com.example.liftnotes.component.IconPicker
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditSessionBottomSheet(
-    bottomSheetState: EditSessionBottomSheetState,
-    onBottomSheetEvent: (EditSessionBottomSheetEvent) -> Unit,
+fun EditExerciseBottomSheet(
+    bottomSheetState: EditExerciseBottomSheetState,
+    onBottomSheetEvent: (EditExerciseBottomSheetEvent) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
 
-    if (bottomSheetState is EditSessionBottomSheetState.Edit) {
+    if (bottomSheetState is EditExerciseBottomSheetState.Edit) {
         ModalBottomSheet(
             containerColor = MaterialTheme.colorScheme.background,
-            onDismissRequest = { onBottomSheetEvent(EditSessionBottomSheetEvent.Close) },
+            onDismissRequest = { onBottomSheetEvent(EditExerciseBottomSheetEvent.Close) },
             sheetState = sheetState
         ) {
             Column {
                 OutlinedTextField(
                     value = bottomSheetState.name,
-                    onValueChange = { onBottomSheetEvent(EditSessionBottomSheetEvent.NameChanged(it)) },
+                    onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.NameChanged(it)) },
                     label = { Text(text = "Name") },
                     isError = bottomSheetState.nameError != null,
                     supportingText = {
@@ -63,7 +58,7 @@ fun EditSessionBottomSheet(
                             )
                         } else if (bottomSheetState.name.isNotEmpty()) {
                             IconButton(
-                                onClick = { onBottomSheetEvent(EditSessionBottomSheetEvent.NameChanged("")) }
+                                onClick = { onBottomSheetEvent(EditExerciseBottomSheetEvent.NameChanged("")) }
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Cancel,
@@ -78,12 +73,12 @@ fun EditSessionBottomSheet(
                 )
                 OutlinedTextField(
                     value = bottomSheetState.description,
-                    onValueChange = { onBottomSheetEvent(EditSessionBottomSheetEvent.DescriptionChanged(it)) },
+                    onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.DescriptionChanged(it)) },
                     label = { Text(text = "Description") },
                     trailingIcon = {
                        if (bottomSheetState.description.isNotEmpty()) {
                            IconButton(
-                               onClick = { onBottomSheetEvent(EditSessionBottomSheetEvent.DescriptionChanged("")) }
+                               onClick = { onBottomSheetEvent(EditExerciseBottomSheetEvent.DescriptionChanged("")) }
                            ) {
                                Icon(
                                    imageVector = Icons.Default.Cancel,
@@ -100,7 +95,7 @@ fun EditSessionBottomSheet(
                 IconPicker(
                     onIconSelected = { imageId ->
                         onBottomSheetEvent(
-                            EditSessionBottomSheetEvent.IconChanged(
+                            EditExerciseBottomSheetEvent.IconChanged(
                                 imageId
                             )
                         )
@@ -108,18 +103,48 @@ fun EditSessionBottomSheet(
                     bottomSheetState.imageId
                 )
 
-                DaySelector(
-                    completionDays = bottomSheetState.completionDays,
-                    onClick = { dayOfWeek ->
-                        onBottomSheetEvent(
-                            EditSessionBottomSheetEvent.DayChanged(
-                                dayOfWeek
-                            )
-                        )
-                    },
+                Row {
+                    OutlinedTextField(
+                        value = bottomSheetState.weight?.toString() ?: "",
+                        onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.WeightChanged(it.toFloatOrNull())) },
+                        label = { Text(text = "Weight") },
+                        modifier = Modifier
+                            .padding(8.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = bottomSheetState.sets?.toString() ?: "",
+                        onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.SetsChanged(it.toIntOrNull())) },
+                        label = { Text(text = "Sets") },
+                        modifier = Modifier
+                            .padding(8.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = bottomSheetState.reps?.min.toString(),
+                        onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.MinRepsChanged(it.toIntOrNull())) },
+                        label = { Text(text = "Min Reps") },
+                        modifier = Modifier
+                            .padding(8.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = bottomSheetState.reps?.max.toString(),
+                        onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.MaxRepsChanged(it.toIntOrNull())) },
+                        label = { Text(text = "Max Reps") },
+                        modifier = Modifier
+                            .padding(8.dp)
+                    )
+                }
+
+                // Time field
+                OutlinedTextField(
+                    value = bottomSheetState.time?.toString() ?: "",
+                    onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.TimeChanged(it.toIntOrNull())) },
+                    label = { Text(text = "Time (seconds)") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
+                        .padding(8.dp)
                 )
 
                 FormButtons(
@@ -127,10 +152,10 @@ fun EditSessionBottomSheet(
                         coroutineScope.launch {
                             sheetState.hide()
                         }.invokeOnCompletion {
-                            onBottomSheetEvent(EditSessionBottomSheetEvent.Close)
+                            onBottomSheetEvent(EditExerciseBottomSheetEvent.Close)
                         }
                     },
-                    { onBottomSheetEvent(EditSessionBottomSheetEvent.Save) }
+                    { onBottomSheetEvent(EditExerciseBottomSheetEvent.Save) }
                 )
             }
         }

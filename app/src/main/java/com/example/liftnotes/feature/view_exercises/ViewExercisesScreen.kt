@@ -76,14 +76,20 @@ fun ViewExercisesScreen(
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
-        when (uiState) {
-            DataResult.Loading -> Loading(innerPadding)
-            is DataResult.Success -> Success(
-                onEvent,
-                uiState.data,
-                innerPadding
+        Box {
+            when (uiState) {
+                DataResult.Loading -> Loading(innerPadding)
+                is DataResult.Success -> Success(
+                    onEvent,
+                    uiState.data,
+                    innerPadding
+                )
+                is DataResult.Error -> Error(innerPadding)
+            }
+            EditExerciseBottomSheet(
+                bottomSheetState = bottomSheetState,
+                onBottomSheetEvent = onBottomSheetEvent
             )
-            is DataResult.Error -> Error(innerPadding)
         }
     }
 }

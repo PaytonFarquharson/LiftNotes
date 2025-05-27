@@ -44,8 +44,6 @@ android {
 }
 
 dependencies {
-
-
     implementation(libs.androidx.ui.test.junit4.android)
     implementation(libs.androidx.runner)
     val composeBom = platform(libs.androidx.compose.bom)

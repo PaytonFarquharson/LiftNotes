@@ -79,49 +79,41 @@ class ViewSessionsViewModel @Inject constructor(
     }
 
     fun onBottomSheetEvent(event: EditSessionBottomSheetEvent) {
-        when (event) {
-            is EditSessionBottomSheetEvent.NameChanged -> {
-                (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let {
-                    _bottomSheetState.value = it.copy(name = event.name)
+        (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let { state ->
+            when (event) {
+                is EditSessionBottomSheetEvent.NameChanged -> {
+                    _bottomSheetState.value = state.copy(name = event.name, nameError = null)
                 }
-            }
 
-            is EditSessionBottomSheetEvent.DescriptionChanged -> {
-                (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let {
-                    _bottomSheetState.value = it.copy(description = event.description)
+                is EditSessionBottomSheetEvent.DescriptionChanged -> {
+                    _bottomSheetState.value = state.copy(description = event.description)
                 }
-            }
 
-            is EditSessionBottomSheetEvent.IconChanged -> {
-                (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let {
-                    _bottomSheetState.value = it.copy(imageId = event.imageId)
+                is EditSessionBottomSheetEvent.IconChanged -> {
+                    _bottomSheetState.value = state.copy(imageId = event.imageId)
                 }
-            }
 
-            is EditSessionBottomSheetEvent.DayChanged -> {
-                (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let {
+                is EditSessionBottomSheetEvent.DayChanged -> {
                     val completionDays: MutableList<CompletionDay> = mutableListOf()
-                    for (completionDay in it.completionDays) {
+                    for (completionDay in state.completionDays) {
                         if (completionDay.dayOfWeek == event.dayOfWeek) {
                             completionDays.add(completionDay.copy(isHighlighted = !completionDay.isHighlighted))
                         } else {
                             completionDays.add(completionDay)
                         }
                     }
-                    _bottomSheetState.value = it.copy(completionDays = completionDays)
+                    _bottomSheetState.value = state.copy(completionDays = completionDays)
                 }
-            }
 
-            is EditSessionBottomSheetEvent.Close -> {
-                _bottomSheetState.value = EditSessionBottomSheetState.Closed
-            }
+                is EditSessionBottomSheetEvent.Close -> {
+                    _bottomSheetState.value = EditSessionBottomSheetState.Closed
+                }
 
-            is EditSessionBottomSheetEvent.Save -> {
-                (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let { state ->
+                is EditSessionBottomSheetEvent.Save -> {
                     val daysOfWeek = state.completionDays
                         .filter { it.isHighlighted }
                         .map { it.dayOfWeek }
-                    updateSession(
+                    validateAndUpdateSession(
                         Session(
                             name = state.name,
                             description = state.description,
@@ -132,6 +124,19 @@ class ViewSessionsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun validateAndUpdateSession(session: Session) {
+        if (session.name.isBlank()) {
+            (_bottomSheetState.value as? EditSessionBottomSheetState.Edit)?.let {
+                _bottomSheetState.value = it.copy(
+                    nameError = "Name cannot be empty"
+                )
+            }
+            return
+        }
+        updateSession(session)
+        _bottomSheetState.value = EditSessionBottomSheetState.Closed
     }
 
     private fun updateSession(session: Session) {
@@ -166,7 +171,8 @@ sealed class EditSessionBottomSheetState {
         val name: String = "",
         val description: String = "",
         val imageId: Int = R.drawable.ic_empty,
-        val completionDays: List<CompletionDay>
+        val completionDays: List<CompletionDay>,
+        val nameError: String? = null
     ) : EditSessionBottomSheetState()
 }
 
