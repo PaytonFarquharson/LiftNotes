@@ -112,6 +112,10 @@ class ViewExercisesViewModel @Inject constructor(
                     _bottomSheetState.value = state.copy(sets = event.sets)
                 }
                 is EditExerciseBottomSheetEvent.TimeChanged -> {
+                    if (event.time == null || event.time <= 0) {
+                        _bottomSheetState.value = state.copy(time = null)
+                        return
+                    }
                     _bottomSheetState.value = state.copy(time = event.time)
                 }
                 is EditExerciseBottomSheetEvent.WeightChanged -> {

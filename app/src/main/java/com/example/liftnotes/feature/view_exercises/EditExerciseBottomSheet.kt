@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Error
@@ -16,11 +17,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.liftnotes.component.ClickableTextField
 import com.example.liftnotes.component.FormButtons
 import com.example.liftnotes.component.IconPicker
+import com.example.liftnotes.component.MinuteSecondPickerDialog
+import com.example.liftnotes.database.model.getTimeString
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,6 +37,7 @@ fun EditExerciseBottomSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
+    val timeDialogOpen = remember { mutableStateOf(false) }
 
     if (bottomSheetState is EditExerciseBottomSheetState.Edit) {
         ModalBottomSheet(
@@ -46,7 +53,10 @@ fun EditExerciseBottomSheet(
                     isError = bottomSheetState.nameError != null,
                     supportingText = {
                         bottomSheetState.nameError?.let {
-                            Text(text = bottomSheetState.nameError, color = MaterialTheme.colorScheme.error)
+                            Text(
+                                text = bottomSheetState.nameError,
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
                     },
                     trailingIcon = {
@@ -58,7 +68,13 @@ fun EditExerciseBottomSheet(
                             )
                         } else if (bottomSheetState.name.isNotEmpty()) {
                             IconButton(
-                                onClick = { onBottomSheetEvent(EditExerciseBottomSheetEvent.NameChanged("")) }
+                                onClick = {
+                                    onBottomSheetEvent(
+                                        EditExerciseBottomSheetEvent.NameChanged(
+                                            ""
+                                        )
+                                    )
+                                }
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Cancel,
@@ -73,18 +89,30 @@ fun EditExerciseBottomSheet(
                 )
                 OutlinedTextField(
                     value = bottomSheetState.description,
-                    onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.DescriptionChanged(it)) },
+                    onValueChange = {
+                        onBottomSheetEvent(
+                            EditExerciseBottomSheetEvent.DescriptionChanged(
+                                it
+                            )
+                        )
+                    },
                     label = { Text(text = "Description") },
                     trailingIcon = {
-                       if (bottomSheetState.description.isNotEmpty()) {
-                           IconButton(
-                               onClick = { onBottomSheetEvent(EditExerciseBottomSheetEvent.DescriptionChanged("")) }
-                           ) {
-                               Icon(
-                                   imageVector = Icons.Default.Cancel,
-                                   contentDescription = "Clear text"
-                               )
-                           }
+                        if (bottomSheetState.description.isNotEmpty()) {
+                            IconButton(
+                                onClick = {
+                                    onBottomSheetEvent(
+                                        EditExerciseBottomSheetEvent.DescriptionChanged(
+                                            ""
+                                        )
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Cancel,
+                                    contentDescription = "Clear text"
+                                )
+                            }
                         }
                     },
                     modifier = Modifier
@@ -106,46 +134,103 @@ fun EditExerciseBottomSheet(
                 Row {
                     OutlinedTextField(
                         value = bottomSheetState.weight?.toString() ?: "",
-                        onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.WeightChanged(it.toFloatOrNull())) },
+                        onValueChange = {
+                            onBottomSheetEvent(
+                                EditExerciseBottomSheetEvent.WeightChanged(
+                                    it.toFloatOrNull()
+                                )
+                            )
+                        },
                         label = { Text(text = "Weight") },
                         modifier = Modifier
+                            .wrapContentSize()
                             .padding(8.dp)
                     )
 
                     OutlinedTextField(
                         value = bottomSheetState.sets?.toString() ?: "",
-                        onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.SetsChanged(it.toIntOrNull())) },
+                        onValueChange = {
+                            onBottomSheetEvent(
+                                EditExerciseBottomSheetEvent.SetsChanged(
+                                    it.toIntOrNull()
+                                )
+                            )
+                        },
                         label = { Text(text = "Sets") },
                         modifier = Modifier
+                            .wrapContentSize()
                             .padding(8.dp)
                     )
 
                     OutlinedTextField(
                         value = bottomSheetState.reps?.min.toString(),
-                        onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.MinRepsChanged(it.toIntOrNull())) },
+                        onValueChange = {
+                            onBottomSheetEvent(
+                                EditExerciseBottomSheetEvent.MinRepsChanged(
+                                    it.toIntOrNull()
+                                )
+                            )
+                        },
                         label = { Text(text = "Min Reps") },
                         modifier = Modifier
+                            .wrapContentSize()
                             .padding(8.dp)
                     )
 
                     OutlinedTextField(
                         value = bottomSheetState.reps?.max.toString(),
-                        onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.MaxRepsChanged(it.toIntOrNull())) },
+                        onValueChange = {
+                            onBottomSheetEvent(
+                                EditExerciseBottomSheetEvent.MaxRepsChanged(
+                                    it.toIntOrNull()
+                                )
+                            )
+                        },
                         label = { Text(text = "Max Reps") },
                         modifier = Modifier
+                            .wrapContentSize()
                             .padding(8.dp)
                     )
                 }
 
-                // Time field
-                OutlinedTextField(
-                    value = bottomSheetState.time?.toString() ?: "",
-                    onValueChange = { onBottomSheetEvent(EditExerciseBottomSheetEvent.TimeChanged(it.toIntOrNull())) },
-                    label = { Text(text = "Time (seconds)") },
+                ClickableTextField(
+                    value = getTimeString(bottomSheetState.time),
+                    label = "Time",
+                    onClick = { timeDialogOpen.value = true },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(8.dp),
+
+                    trailingIcon = {
+                        if (bottomSheetState.time != null) {
+                            IconButton(
+                                onClick = {
+                                    onBottomSheetEvent(
+                                        EditExerciseBottomSheetEvent.TimeChanged(
+                                            null
+                                        )
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Cancel,
+                                    contentDescription = "Clear time"
+                                )
+                            }
+                        }
+                    }
                 )
+
+                if (timeDialogOpen.value) {
+                    MinuteSecondPickerDialog(
+                        initialTime = bottomSheetState.time ?: 0,
+                        onConfirm = { seconds ->
+                            onBottomSheetEvent(EditExerciseBottomSheetEvent.TimeChanged(seconds))
+                            timeDialogOpen.value = false
+                        },
+                        onDismiss = { timeDialogOpen.value = false }
+                    )
+                }
 
                 FormButtons(
                     {

@@ -17,18 +17,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.liftnotes.R
 import com.example.liftnotes.database.model.Exercise
+import com.example.liftnotes.database.model.getSetsString
+import com.example.liftnotes.database.model.getTimeString
+import com.example.liftnotes.database.model.getWeightString
 
 @Composable
 fun ExerciseValues(exercise: Exercise, modifier: Modifier) {
+    val values = listOfNotNull(
+        getWeightString(exercise.weight).takeIf { it.isNotEmpty() }?.let { R.drawable.ic_weight to it },
+        getSetsString(exercise.sets, exercise.reps).takeIf { it.isNotEmpty() }?.let { R.drawable.ic_repetition to it },
+        getTimeString(exercise.time).takeIf { it.isNotEmpty() }?.let { R.drawable.ic_timer to it }
+    )
+
     Row(modifier = modifier) {
-        exercise.getWeightString().takeIf { it.isNotEmpty() }?.let {
-            ExerciseValue(R.drawable.ic_weight, it, Modifier.weight(1f))
-        }
-        exercise.getSetsString().takeIf { it.isNotEmpty() }?.let {
-            ExerciseValue(R.drawable.ic_repetition, it, Modifier.weight(1f))
-        }
-        exercise.getTimeString().takeIf { it.isNotEmpty() }?.let {
-            ExerciseValue(R.drawable.ic_timer, it, Modifier.weight(1f))
+        values.forEach { (icon, value) ->
+            ExerciseValue(icon, value, Modifier.weight(1f))
         }
     }
 }

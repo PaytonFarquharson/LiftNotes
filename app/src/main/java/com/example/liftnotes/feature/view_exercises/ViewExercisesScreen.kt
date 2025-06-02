@@ -72,7 +72,7 @@ fun ViewExercisesScreen(
             )
         },
         floatingActionButton = {
-            FloatingAddButton(onClick = {})
+            FloatingAddButton(onClick = { onEvent(ViewExercisesUiEvent.AddClicked) })
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
