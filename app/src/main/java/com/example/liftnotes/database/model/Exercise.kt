@@ -1,10 +1,10 @@
 package com.example.liftnotes.database.model
 
-import android.icu.text.DecimalFormat
 import androidx.annotation.DrawableRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.liftnotes.R
+import com.example.liftnotes.utils.StringUtils.trimUnnecessaryDecimals
 
 @Entity(tableName = "exercises")
 data class Exercise(
@@ -13,17 +13,16 @@ data class Exercise(
     val description: String? = null,
     @DrawableRes val imageId: Int = R.drawable.ic_empty,
     val weight: Float? = null,
+    val weightIncrement: Float? = null,
     val sets: Int? = null,
     val reps: Range? = null,
     val time: Int? = null,
-    val rating: Rating = Rating.NONE
 )
 
 fun getWeightString(weight: Float?): String {
     val builder = StringBuilder()
-    weight?.let {
-        val formatter = android.icu.text.DecimalFormat("0.#")
-        builder.append("${formatter.format(weight)} lbs")
+    weight?.toString()?.let {
+        builder.append("${trimUnnecessaryDecimals(it)} lbs")
     }
     return builder.toString()
 }
@@ -69,12 +68,3 @@ data class Range(
     val min: Int,
     val max: Int? = null
 )
-
-enum class Rating {
-    NONE,
-    VERY_EASY,
-    EASY,
-    MEDIUM,
-    HARD,
-    VERY_HARD
-}

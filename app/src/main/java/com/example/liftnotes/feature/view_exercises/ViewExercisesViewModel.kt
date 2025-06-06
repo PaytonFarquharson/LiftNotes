@@ -90,8 +90,8 @@ class ViewExercisesViewModel @Inject constructor(
                 }
 
                 is EditExerciseBottomSheetEvent.MinRepsChanged -> {
-                    val minReps = event.reps ?: 0
-                    _bottomSheetState.value = if (minReps <= 0 && state.reps?.max == null) {
+                    val minReps = event.reps?.takeIf { it > 0 } ?: 0
+                    _bottomSheetState.value = if (minReps == 0) {
                         state.copy(reps = null, repsError = null)
                     } else {
                         state.copy(
@@ -102,21 +102,23 @@ class ViewExercisesViewModel @Inject constructor(
                 }
 
                 is EditExerciseBottomSheetEvent.MaxRepsChanged -> {
+                    val maxReps = event.reps?.takeIf { it > 0 }
                     _bottomSheetState.value =
                         state.copy(
-                            reps = state.reps?.copy(max = event.reps) ?: Range(min = 0, max = event.reps),
+                            reps = state.reps?.copy(max = maxReps) ?: Range(min = 0, max = maxReps),
                             repsError = null
                         )
                 }
                 is EditExerciseBottomSheetEvent.SetsChanged -> {
-                    _bottomSheetState.value = state.copy(sets = event.sets)
+                    val newSets = event.sets?.takeIf { it > 0 }
+                    _bottomSheetState.value = state.copy(sets = newSets)
                 }
                 is EditExerciseBottomSheetEvent.TimeChanged -> {
-                    if (event.time == null || event.time <= 0) {
-                        _bottomSheetState.value = state.copy(time = null)
-                        return
-                    }
-                    _bottomSheetState.value = state.copy(time = event.time)
+                    val newTime = event.time?.takeIf { it > 0 }
+                    _bottomSheetState.value = state.copy(time = newTime)
+                }
+                is EditExerciseBottomSheetEvent.WeightIncrementChanged -> {
+                    _bottomSheetState.value = state.copy(weightIncrement = event.increment)
                 }
                 is EditExerciseBottomSheetEvent.WeightChanged -> {
                     _bottomSheetState.value = state.copy(weight = event.weight)
@@ -159,8 +161,8 @@ class ViewExercisesViewModel @Inject constructor(
                         repsError = "Invalid rep range"
                     )
                 }
+                isValid = false
             }
-            isValid = false
         }
 
         if (!isValid) return
@@ -171,7 +173,15 @@ class ViewExercisesViewModel @Inject constructor(
     private fun updateExercise(exercise: Exercise) {
         (uiState.value as? DataResult.Success)?.let { dataResult ->
             viewModelScope.launch {
-
+                val exerciseId = repository.updateExercise(exercise)
+                val exerciseIds = dataResult.data.session.exerciseIds
+                if (!exerciseIds.contains(exerciseId)) {
+                    repository.updateSession(
+                        dataResult.data.session.copy(
+                            exerciseIds = exerciseIds + exerciseId
+                        )
+                    )
+                }
             }
         }
     }
@@ -198,6 +208,7 @@ sealed class EditExerciseBottomSheetState {
         val description: String = "",
         val imageId: Int = R.drawable.ic_empty,
         val weight: Float? = null,
+        val weightIncrement: Float? = null,
         val sets: Int? = null,
         val reps: Range? = null,
         val repsError: String? = null,
@@ -210,6 +221,7 @@ sealed class EditExerciseBottomSheetEvent {
     data class DescriptionChanged(val description: String) : EditExerciseBottomSheetEvent()
     data class IconChanged(val imageId: Int) : EditExerciseBottomSheetEvent()
     data class WeightChanged(val weight: Float?) : EditExerciseBottomSheetEvent()
+    data class WeightIncrementChanged(val increment: Float?) : EditExerciseBottomSheetEvent()
     data class SetsChanged(val sets: Int?) : EditExerciseBottomSheetEvent()
     data class MinRepsChanged(val reps: Int?) : EditExerciseBottomSheetEvent()
     data class MaxRepsChanged(val reps: Int?) : EditExerciseBottomSheetEvent()

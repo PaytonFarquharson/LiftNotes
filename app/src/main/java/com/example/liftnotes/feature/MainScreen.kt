@@ -73,7 +73,9 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
                     onClick = {
                         selectedIndex = index
                         navController.navigate(navItem.route) {
-                            popUpTo(navController.graph.findStartDestination().id)
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                inclusive = true
+                            }
                             launchSingleTop = true
                         }
                     },

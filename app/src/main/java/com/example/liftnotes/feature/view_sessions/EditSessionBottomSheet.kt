@@ -74,7 +74,7 @@ fun EditSessionBottomSheet(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
                 )
                 OutlinedTextField(
                     value = bottomSheetState.description,
@@ -94,7 +94,7 @@ fun EditSessionBottomSheet(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                 )
 
                 IconPicker(
@@ -119,7 +119,7 @@ fun EditSessionBottomSheet(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                 )
 
                 FormButtons(

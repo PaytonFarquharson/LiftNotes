@@ -16,3 +16,12 @@ data class HistoricalExercise(
     val time: Int?,
     val rating: Rating = Rating.NONE
 )
+
+enum class Rating {
+    NONE,
+    VERY_EASY,
+    EASY,
+    MEDIUM,
+    HARD,
+    VERY_HARD
+}

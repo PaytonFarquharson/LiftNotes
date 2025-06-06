@@ -1,9 +1,6 @@
 package com.example.liftnotes.component
 
 import androidx.compose.foundation.clickable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -11,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 
 @Composable
 fun ClickableTextField(
@@ -20,6 +18,7 @@ fun ClickableTextField(
     modifier: Modifier = Modifier,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
+    val focusManager = LocalFocusManager.current
     OutlinedTextField(
         value = value,
         readOnly = true,
@@ -39,7 +38,10 @@ fun ClickableTextField(
             disabledSuffixColor = MaterialTheme.colorScheme.onSurfaceVariant,
         ),
         modifier = modifier
-            .clickable { onClick() },
+            .clickable {
+                onClick()
+                focusManager.clearFocus()
+            },
         trailingIcon = trailingIcon
     )
 }
