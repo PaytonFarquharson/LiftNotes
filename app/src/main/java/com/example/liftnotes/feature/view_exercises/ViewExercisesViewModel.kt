@@ -25,7 +25,7 @@ class ViewExercisesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val sessionId: Int = savedStateHandle[WorkoutRoute.ARG_EXERCISE_ID] ?: -1
+    private val sessionId: Int = savedStateHandle[WorkoutRoute.ARG_SESSION_ID] ?: -1
 
     val uiState = repository.getSessionExercises(sessionId)
         .stateIn(

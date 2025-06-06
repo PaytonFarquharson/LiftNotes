@@ -50,6 +50,8 @@ dependencies {
     implementation(composeBom)
     testImplementation(libs.junit4)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.app.cash.turbine)
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(composeBom)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

@@ -1,35 +1,39 @@
 package com.example.liftnotes.feature.view_exercises
 
 import androidx.lifecycle.SavedStateHandle
-import com.example.liftnotes.implementations.FakeViewExercisesRepository
+import app.cash.turbine.test
+import com.example.liftnotes.navigation.WorkoutRoute
 import com.example.liftnotes.repository.interfaces.WorkoutRepository
 import com.example.liftnotes.repository.model.DataResult
+import com.example.liftnotes.repository.model.ViewExercisesScreenData
 import com.example.liftnotes.test.testExercisesModel
-import junit.framework.TestCase.assertEquals
+import com.example.liftnotes.test.testSessionsModel
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ViewExercisesViewModelTest {
 
-    val dispatcher = StandardTestDispatcher()
-    val savedStateHandle = SavedStateHandle()
+    private val testDispatcher = StandardTestDispatcher()
 
-    lateinit var repository: WorkoutRepository
-    lateinit var viewModel: ViewExercisesViewModel
+    private val savedStateHandle: SavedStateHandle = mock()
+    private val fakeRepository: WorkoutRepository = mock()
+    private lateinit var viewModel: ViewExercisesViewModel
 
     @Before
-    fun setUp() {
-        Dispatchers.setMain(dispatcher)
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
     }
 
     @After
@@ -38,26 +42,35 @@ class ViewExercisesViewModelTest {
     }
 
     @Test
-    fun `Fetch Exercises then Success`() = runTest {
-        val exercises = testExercisesModel
-        repository = FakeViewExercisesRepository(DataResult.Success(testExercisesModel))
-        viewModel = ViewExercisesViewModel(repository, savedStateHandle)
+    fun `Loading then Success State`() = runTest {
+        whenever(savedStateHandle.get<Int>(WorkoutRoute.ARG_SESSION_ID)).thenReturn(1)
+        whenever(fakeRepository.getSessionExercises(1))
+            .thenReturn(flowOf(DataResult.Success(ViewExercisesScreenData(testSessionsModel.get(0), testExercisesModel))))
 
-        advanceUntilIdle()
-        val state = viewModel.uiState.value
+        viewModel = ViewExercisesViewModel(
+            repository = fakeRepository,
+            savedStateHandle = savedStateHandle
+        )
 
-        assertTrue(state is ViewExercisesUiState.Success)
-        assertEquals(exercises, (state as ViewExercisesUiState.Success).exercises)
+        viewModel.uiState.test {
+            assertTrue(awaitItem() is DataResult.Loading)
+            assertTrue(awaitItem() is DataResult.Success)
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test
-    fun `AddClicked then Edit state`() = runTest {
-        val exercises = testExercisesModel
-        repository = FakeViewExercisesRepository(DataResult.Success(testExercisesModel))
-        viewModel = ViewExercisesViewModel(repository, savedStateHandle)
+    fun `BackPressed emits NavigateBack`() = runTest {
+        whenever(savedStateHandle.get<Int>(WorkoutRoute.ARG_SESSION_ID)).thenReturn(1)
+        viewModel = ViewExercisesViewModel(
+            repository = fakeRepository,
+            savedStateHandle = savedStateHandle
+        )
 
-        viewModel.onUiEvent(ViewExercisesUiEvent.AddClicked)
-        val state = viewModel.bottomSheetState.value
-        assertTrue(state is EditExerciseBottomSheetState.Edit)
+        viewModel.effect.test {
+            viewModel.onUiEvent(ViewExercisesUiEvent.BackPressed)
+            assertTrue(awaitItem() is ViewExercisesUiEffect.NavigateBack)
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 }

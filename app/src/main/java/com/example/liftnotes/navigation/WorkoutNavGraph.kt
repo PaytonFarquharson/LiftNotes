@@ -46,7 +46,7 @@ fun NavGraphBuilder.workoutNavGraph(navController: NavHostController) {
         }
         composable(
             WorkoutRoute.ViewExercises.route,
-            arguments = listOf(navArgument(WorkoutRoute.ARG_EXERCISE_ID) { type = NavType.IntType })
+            arguments = listOf(navArgument(WorkoutRoute.ARG_SESSION_ID) { type = NavType.IntType })
         ) {
             val viewModel: ViewExercisesViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -73,11 +73,11 @@ fun NavGraphBuilder.workoutNavGraph(navController: NavHostController) {
 
 sealed class WorkoutRoute(val route: String) {
     object ViewSessions : WorkoutRoute("view_sessions")
-    object ViewExercises : WorkoutRoute("view_exercises/{$ARG_EXERCISE_ID}") {
+    object ViewExercises : WorkoutRoute("view_exercises/{$ARG_SESSION_ID}") {
         fun createRoute(exerciseId: Int) = "view_exercises/$exerciseId"
     }
 
     companion object {
-        const val ARG_EXERCISE_ID = "exerciseId"
+        const val ARG_SESSION_ID = "sessionId"
     }
 }
