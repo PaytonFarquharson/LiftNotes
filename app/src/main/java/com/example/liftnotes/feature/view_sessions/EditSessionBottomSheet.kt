@@ -54,6 +54,13 @@ fun EditSessionBottomSheet(
                             Text(text = bottomSheetState.nameError, color = MaterialTheme.colorScheme.error)
                         }
                     },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_tag),
+                            contentDescription = "Name Icon",
+                            Modifier.size(24.dp)
+                        )
+                    },
                     trailingIcon = {
                         if (bottomSheetState.nameError != null) {
                             Icon(
@@ -72,6 +79,7 @@ fun EditSessionBottomSheet(
                             }
                         }
                     },
+                    singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
@@ -80,6 +88,13 @@ fun EditSessionBottomSheet(
                     value = bottomSheetState.description,
                     onValueChange = { onBottomSheetEvent(EditSessionBottomSheetEvent.DescriptionChanged(it)) },
                     label = { Text(text = "Description") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_description),
+                            contentDescription = "Description Icon",
+                            Modifier.size(24.dp)
+                        )
+                    },
                     trailingIcon = {
                        if (bottomSheetState.description.isNotEmpty()) {
                            IconButton(
@@ -92,6 +107,7 @@ fun EditSessionBottomSheet(
                            }
                         }
                     },
+                    singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)

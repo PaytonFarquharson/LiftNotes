@@ -69,6 +69,7 @@ fun NumberTextField(
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Increment")
             }
         },
+        singleLine = true,
         modifier = modifier
     )
 }

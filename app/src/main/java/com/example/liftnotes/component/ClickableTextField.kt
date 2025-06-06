@@ -16,6 +16,7 @@ fun ClickableTextField(
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
     val focusManager = LocalFocusManager.current
@@ -37,11 +38,13 @@ fun ClickableTextField(
             disabledPrefixColor = MaterialTheme.colorScheme.onSurfaceVariant,
             disabledSuffixColor = MaterialTheme.colorScheme.onSurfaceVariant,
         ),
+        singleLine = true,
         modifier = modifier
             .clickable {
                 onClick()
                 focusManager.clearFocus()
             },
+        leadingIcon = leadingIcon,
         trailingIcon = trailingIcon
     )
 }

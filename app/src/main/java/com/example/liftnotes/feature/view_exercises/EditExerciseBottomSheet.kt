@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
@@ -30,8 +31,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.liftnotes.R
 import com.example.liftnotes.component.ClickableTextField
 import com.example.liftnotes.component.FormButtons
 import com.example.liftnotes.component.IconPicker
@@ -73,6 +77,13 @@ fun EditExerciseBottomSheet(
                             )
                         }
                     },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_tag),
+                            contentDescription = "Name Icon",
+                            Modifier.size(24.dp)
+                        )
+                    },
                     trailingIcon = {
                         if (bottomSheetState.nameError != null) {
                             Icon(
@@ -97,6 +108,7 @@ fun EditExerciseBottomSheet(
                             }
                         }
                     },
+                    singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
@@ -111,6 +123,13 @@ fun EditExerciseBottomSheet(
                         )
                     },
                     label = { Text(text = "Description") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_description),
+                            contentDescription = "Description Icon",
+                            Modifier.size(24.dp)
+                        )
+                    },
                     trailingIcon = {
                         if (bottomSheetState.description.isNotEmpty()) {
                             IconButton(
@@ -129,6 +148,7 @@ fun EditExerciseBottomSheet(
                             }
                         }
                     },
+                    singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
@@ -176,6 +196,13 @@ fun EditExerciseBottomSheet(
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
                         },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.ic_weight),
+                                contentDescription = "Weight Icon",
+                                Modifier.size(24.dp)
+                            )
+                        },
                         trailingIcon = if (bottomSheetState.weight != null) {
                             {
                                 IconButton(
@@ -195,6 +222,7 @@ fun EditExerciseBottomSheet(
                         } else {
                             null
                         },
+                        singleLine = true,
                         modifier = Modifier
                             .padding(end = 8.dp)
                             .weight(0.7f)
@@ -221,6 +249,7 @@ fun EditExerciseBottomSheet(
                             label = { Text(text = "+/-") },
                             readOnly = true,
                             enabled = isEnabled,
+                            singleLine = true,
                             modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropDownExpanded) },
                         )
@@ -256,8 +285,7 @@ fun EditExerciseBottomSheet(
                         onValueChangeEvent = { onBottomSheetEvent(EditExerciseBottomSheetEvent.SetsChanged(it.toIntOrNull())) },
                         modifier = Modifier
                             .padding(end = 8.dp)
-                            .weight(1f
-                        )
+                            .weight(0.45f)
                     )
 
                     ClickableTextField(
@@ -265,8 +293,14 @@ fun EditExerciseBottomSheet(
                         label = "Time",
                         onClick = { timeDialogOpen = true },
                         modifier = Modifier
-                            .weight(1f),
-
+                            .weight(0.55f),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.ic_timer),
+                                contentDescription = "Time Icon",
+                                Modifier.size(24.dp)
+                            )
+                        },
                         trailingIcon = {
                             if (bottomSheetState.time != null) {
                                 IconButton(
