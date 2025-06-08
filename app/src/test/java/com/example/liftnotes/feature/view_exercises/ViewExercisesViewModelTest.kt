@@ -34,6 +34,7 @@ class ViewExercisesViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        whenever(savedStateHandle.get<Int>(WorkoutRoute.ARG_SESSION_ID)).thenReturn(1)
     }
 
     @After
@@ -43,7 +44,6 @@ class ViewExercisesViewModelTest {
 
     @Test
     fun `Loading then Success State`() = runTest {
-        whenever(savedStateHandle.get<Int>(WorkoutRoute.ARG_SESSION_ID)).thenReturn(1)
         whenever(fakeRepository.getSessionExercises(1))
             .thenReturn(flowOf(DataResult.Success(ViewExercisesScreenData(testSessionsModel.get(0), testExercisesModel))))
 
@@ -60,8 +60,22 @@ class ViewExercisesViewModelTest {
     }
 
     @Test
+    fun `Loading then Error State`() = runTest {
+        whenever(fakeRepository.getSessionExercises(1))
+            .thenReturn(flowOf(DataResult.Error()))
+        viewModel = ViewExercisesViewModel(
+            repository = fakeRepository,
+            savedStateHandle = savedStateHandle
+        )
+        viewModel.uiState.test {
+            assertTrue(awaitItem() is DataResult.Loading)
+            assertTrue(awaitItem() is DataResult.Error)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `BackPressed emits NavigateBack`() = runTest {
-        whenever(savedStateHandle.get<Int>(WorkoutRoute.ARG_SESSION_ID)).thenReturn(1)
         viewModel = ViewExercisesViewModel(
             repository = fakeRepository,
             savedStateHandle = savedStateHandle
